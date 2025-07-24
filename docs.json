@@ -2,38 +2,29 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Weights",
+
   "colors": {
-    "primary": "#16A34A",
+    "primary": "#ffffff",
     "light": "#07C983",
-    "dark": "#15803D"
+    "dark": "#444444"
   },
   "favicon": "/favicon.svg",
+  "appearance": {
+    "default": "dark",
+    "strict": true
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "API Reference",
         "groups": [
+          {
+            "group": "Getting started",
+            "pages": ["index"]
+          },
           {
             "group": "API reference",
             "openapi": "https://app.stainless.com/api/spec/documented/weights/openapi.documented.yml"
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": ["api-reference/introduction"]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
           }
         ]
       }
@@ -42,25 +33,21 @@
       "anchors": [
         {
           "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
+          "href": "https://docs.weights.com",
           "icon": "book-open-cover"
         },
         {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "API Keys",
+          "href": "https://www.weights.com/weights-api",
+          "icon": "key"
         }
       ]
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "dark": "/logo/logo.svg",
+
+    "light": "/logo/logo.svg"
   },
   "navbar": {
     "links": [
