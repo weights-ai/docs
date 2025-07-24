@@ -1,0 +1,475 @@
+Learn how to create AI voice models and generate voice covers using the Weights API. This guide covers both training custom RVC (Retrieval-based Voice Conversion) models and creating voice covers with existing models.
+
+## Overview
+
+The Weights API provides powerful voice synthesis capabilities through RVC technology. You can train custom voice models on your own audio samples and create voice covers that sound like specific singers or speakers.
+
+## Prerequisites
+
+- A Weights API account with an API key
+- Audio files for training (1-50 files, 10+ seconds each)
+- Audio files for covers (uploaded to web-accessible URLs)
+- Basic knowledge of HTTP requests and JSON
+- The Weights SDK installed (optional but recommended)
+
+## Step 1: Set Up Your Environment
+
+First, install the Weights SDK and set up your authentication:
+
+```bash
+npm install @weights-ai/sdk
+```
+
+```javascript
+import Weights from "@weights-ai/sdk";
+
+const client = new Weights({
+  bearerToken: "your-api-key-here",
+});
+```
+
+## Step 2: Prepare Your Training Audio
+
+Before training an RVC model, you need to prepare and upload your training audio files.
+
+### Audio Requirements
+
+- **Quantity**: 1-50 audio files
+- **Duration**: Each file should be 10+ seconds long
+- **Quality**: Clear, high-quality audio with minimal background noise
+- **Format**: Common audio formats (MP3, WAV, FLAC)
+- **Content**: Consistent voice/speaker across all files
+- **Accessibility**: Must be accessible via HTTP/HTTPS URLs
+
+### Example Audio Preparation
+
+```javascript
+// Example: Prepare training audio files
+const trainingAudioFiles = [
+  {
+    url: "https://example.com/audio1.mp3",
+    name: "Sample 1 - Clear speech",
+    length: 15.5, // Duration in seconds
+  },
+  {
+    url: "https://example.com/audio2.mp3",
+    name: "Sample 2 - Singing voice",
+    length: 22.3,
+  },
+  {
+    url: "https://example.com/audio3.mp3",
+    name: "Sample 3 - Different pitch",
+    length: 18.7,
+  },
+  // ... more audio files
+];
+
+console.log(`Prepared ${trainingAudioFiles.length} training audio files`);
+```
+
+## Step 3: Create Your RVC Model
+
+Start the training process by creating an RVC model:
+
+```javascript
+const rvcModel = await client.rvcModels.training.create({
+  name: "My Custom Voice",
+  description: "A voice model trained on my singing samples",
+  audioFiles: trainingAudioFiles,
+  isPublic: true,
+  runKaraoke: true,
+  runDeEchoDeReverb: false,
+});
+
+console.log(`RVC model created with ID: ${rvcModel.id}`);
+console.log(`Training job ID: ${rvcModel.id}`);
+```
+
+### Request Parameters
+
+- **name** (required): Name for your RVC model
+- **audioFiles** (required): Array of audio file objects with URLs, names, and lengths
+- **description** (optional): Description of the model
+- **isPublic** (optional): Whether to make the model public (default: true)
+- **runKaraoke** (optional): Extract vocals from music (default: false)
+- **runDeEchoDeReverb** (optional): Remove echo and reverb (default: false)
+
+## Step 4: Monitor Training Progress
+
+RVC training is asynchronous and can take several hours. Poll the status to track progress:
+
+```javascript
+async function checkTrainingStatus(modelId) {
+  const status = await client.rvcModels.training.status(modelId);
+
+  if (!status) {
+    console.log("Model not found or access denied");
+    return null;
+  }
+
+  console.log(`Status: ${status.status}`);
+  console.log(`Queue Position: ${status.queuePosition || "N/A"}`);
+  console.log(`Status Text: ${status.shortStatusText || "N/A"}`);
+
+  switch (status.status) {
+    case "QUEUED":
+      console.log("Your model is waiting in the training queue...");
+      break;
+    case "PROCESSING":
+      console.log("Your model is being trained...");
+      break;
+    case "SUCCEEDED":
+      console.log("Training completed successfully!");
+      break;
+    case "ERRORED":
+      console.log(
+        "Training failed. Please check your audio files and try again."
+      );
+      break;
+  }
+
+  return status;
+}
+
+// Check status every 10 minutes
+const status = await checkTrainingStatus(rvcModel.id);
+```
+
+### Training Statuses
+
+- **QUEUED**: Model is waiting in the training queue
+- **PENDING_WORKER**: Model is assigned to a training worker
+- **PROCESSING**: Model is being trained
+- **SUCCEEDED**: Training completed successfully
+- **ERRORED**: Training failed
+- **CANCELED**: Training was canceled
+
+## Step 5: Retrieve Your Trained Model
+
+Once training is complete, you can retrieve your model details:
+
+```javascript
+const model = await client.rvcModels.training.retrieve(rvcModel.id);
+
+if (model) {
+  console.log(`Model: ${model.name}`);
+  console.log(`Description: ${model.description || "N/A"}`);
+  console.log(`Public: ${model.isPublic}`);
+  console.log(`Created: ${model.createdAt}`);
+  console.log(`Audio Files: ${model.audioFiles.length}`);
+
+  if (model.status === "SUCCEEDED") {
+    console.log("Model is ready to use!");
+  }
+}
+```
+
+## Step 6: Create Voice Covers
+
+Once you have a trained model (or use a public one), you can create voice covers:
+
+```javascript
+const cover = await client.covers.create({
+  rvcModelId: rvcModel.id, // or use a public model ID
+  inputUrl: "https://example.com/song-to-cover.mp3",
+  inputFileName: "Original Song",
+  pitch: 0, // Pitch shift (0 = no change)
+  preStemmed: false, // Whether input is already vocal-only
+  stemOnly: false, // Whether to return only vocals
+  deEcho: false, // Remove echo from output
+  isolateMainVocals: true, // Focus on main vocals
+});
+
+console.log(`Cover created with ID: ${cover.id}`);
+```
+
+### Cover Parameters
+
+- **rvcModelId** (required): ID of the RVC model to use
+- **inputUrl** (required): URL of the audio file to convert
+- **inputFileName** (optional): Name for the input file
+- **pitch** (optional): Pitch shift in semitones (default: 0)
+- **preStemmed** (optional): Whether input is already vocal-only (default: false)
+- **stemOnly** (optional): Return only vocals (default: false)
+- **deEcho** (optional): Remove echo from output (default: false)
+- **isolateMainVocals** (optional): Focus on main vocals (default: false)
+
+## Step 7: Monitor Cover Generation
+
+Cover generation is asynchronous. Poll the status to track progress:
+
+```javascript
+async function checkCoverStatus(coverId) {
+  const cover = await client.covers.retrieve(coverId);
+
+  if (!cover) {
+    console.log("Cover not found or access denied");
+    return null;
+  }
+
+  console.log(`Status: ${cover.status}`);
+  console.log(`Queue Position: ${cover.queuePosition || "N/A"}`);
+
+  switch (cover.status) {
+    case "QUEUED":
+      console.log("Your cover is waiting in the queue...");
+      break;
+    case "PROCESSING":
+      console.log("Your cover is being generated...");
+      break;
+    case "SUCCEEDED":
+      console.log("Cover generated successfully!");
+      console.log("Download URL:", cover.outputUrl);
+      break;
+    case "ERRORED":
+      console.log("Cover generation failed. Please try again.");
+      break;
+  }
+
+  return cover;
+}
+
+// Check status every 30 seconds
+const coverResult = await checkCoverStatus(cover.id);
+```
+
+## Step 8: List and Manage Your Models
+
+View all your RVC models and training jobs:
+
+```javascript
+const myModels = await client.rvcModels.list({
+  limit: 25,
+});
+
+console.log(`You have ${myModels.items.length} RVC models:`);
+
+myModels.items.forEach((item) => {
+  console.log(`- ${item.name} (${item.id})`);
+  console.log(`  Type: ${item.type}`);
+  console.log(`  Status: ${item.status || "N/A"}`);
+  console.log(`  Public: ${item.isPublic}`);
+});
+```
+
+## Advanced Features
+
+### Search Public Models
+
+You can search and use public RVC models created by other users:
+
+```javascript
+const publicModels = await client.rvcModels.search({
+  search: "singer voice",
+  limit: 10,
+});
+
+console.log(`Found ${publicModels.models.length} public models:`);
+
+publicModels.models.forEach((model) => {
+  console.log(`- ${model.title} (${model.id})`);
+  console.log(`  Created: ${model.createdAt}`);
+});
+```
+
+### Upload Existing Models
+
+You can also upload existing RVC models:
+
+```javascript
+const uploadedModel = await client.rvcModels.upload({
+  url: "https://example.com/my-rvc-model.pth",
+  title: "My Pre-trained Model",
+  description: "A model I trained elsewhere",
+});
+
+console.log(`Model uploaded with ID: ${uploadedModel.id}`);
+```
+
+### Download Trained Models
+
+For advanced users, you can download your trained RVC model files:
+
+```javascript
+const downloadInfo = await client.rvcModels.retrieveDownloadURL(rvcModel.id);
+
+if (downloadInfo.downloadUrl) {
+  console.log("Download URL:", downloadInfo.downloadUrl);
+  // The URL expires in 5 minutes
+} else {
+  console.log("Model not ready for download or access denied");
+}
+```
+
+## Best Practices
+
+### Audio Selection for Training
+
+- **Quality**: Use clear, high-quality audio recordings
+- **Consistency**: All files should feature the same voice/speaker
+- **Variety**: Include different pitches, emotions, and speaking styles
+- **Length**: Each file should be 10+ seconds for best results
+- **Clean Audio**: Minimize background noise and music
+
+### Cover Creation Tips
+
+- **Input Quality**: Use high-quality source audio for covers
+- **Pitch Adjustment**: Experiment with pitch shifts for different effects
+- **Vocal Isolation**: Use `isolateMainVocals` for better results with music
+- **Echo Removal**: Enable `deEcho` for cleaner output
+
+### Model Management
+
+```javascript
+// Example: Training a singing voice model
+const singingModel = await client.rvcModels.training.create({
+  name: "My Singing Voice",
+  description: "Trained on my singing samples",
+  audioFiles: singingSamples,
+  runKaraoke: true, // Extract vocals from music
+  isPublic: false, // Keep personal voice private
+});
+
+// Example: Training a speaking voice model
+const speakingModel = await client.rvcModels.training.create({
+  name: "My Speaking Voice",
+  description: "Trained on my speech samples",
+  audioFiles: speechSamples,
+  runKaraoke: false, // No need for vocal extraction
+  isPublic: true, // Share for others to use
+});
+```
+
+## Complete Example
+
+Here's a complete example that trains an RVC model and creates a cover:
+
+```javascript
+import Weights from "@weights-ai/sdk";
+
+const client = new Weights({
+  bearerToken: "your-api-key-here",
+});
+
+async function trainAndCreateCover() {
+  try {
+    // Prepare training audio
+    const trainingAudio = [
+      {
+        url: "https://example.com/sample1.mp3",
+        name: "Sample 1",
+        length: 15.2,
+      },
+      {
+        url: "https://example.com/sample2.mp3",
+        name: "Sample 2",
+        length: 18.7,
+      },
+      {
+        url: "https://example.com/sample3.mp3",
+        name: "Sample 3",
+        length: 12.9,
+      },
+    ];
+
+    // Create RVC model
+    console.log("Creating RVC model...");
+    const rvcModel = await client.rvcModels.training.create({
+      name: "My Voice Model",
+      audioFiles: trainingAudio,
+      runKaraoke: true,
+      isPublic: true,
+    });
+
+    console.log(`Model created with ID: ${rvcModel.id}`);
+
+    // Wait for training to complete
+    let trainingComplete = false;
+    while (!trainingComplete) {
+      await new Promise((resolve) => setTimeout(resolve, 600000)); // Wait 10 minutes
+
+      const status = await client.rvcModels.training.status(rvcModel.id);
+      console.log(`Training status: ${status.status}`);
+
+      if (status.status === "SUCCEEDED") {
+        console.log("Training completed!");
+        trainingComplete = true;
+      } else if (status.status === "ERRORED") {
+        console.log("Training failed");
+        return;
+      }
+    }
+
+    // Create a cover
+    console.log("Creating voice cover...");
+    const cover = await client.covers.create({
+      rvcModelId: rvcModel.id,
+      inputUrl: "https://example.com/song-to-cover.mp3",
+      inputFileName: "Original Song",
+      pitch: 0,
+      isolateMainVocals: true,
+    });
+
+    console.log(`Cover created: ${cover.id}`);
+
+    // Wait for cover to complete
+    let coverComplete = false;
+    while (!coverComplete) {
+      await new Promise((resolve) => setTimeout(resolve, 30000)); // Wait 30 seconds
+
+      const coverStatus = await client.covers.retrieve(cover.id);
+      console.log(`Cover status: ${coverStatus.status}`);
+
+      if (coverStatus.status === "SUCCEEDED") {
+        console.log("Cover generated successfully!");
+        console.log("Download URL:", coverStatus.outputUrl);
+        coverComplete = true;
+      } else if (coverStatus.status === "ERRORED") {
+        console.log("Cover generation failed");
+        coverComplete = true;
+      }
+    }
+  } catch (error) {
+    console.error("Error:", error.message);
+  }
+}
+
+trainAndCreateCover();
+```
+
+## Use Cases
+
+### Voice Covers
+
+- **Music Covers**: Create covers of popular songs in different voices
+- **Character Voices**: Apply character voices to existing content
+- **Language Learning**: Practice pronunciation with native speaker voices
+
+### Voice Synthesis
+
+- **Content Creation**: Generate voiceovers for videos and podcasts
+- **Accessibility**: Create audio versions of text content
+- **Personalization**: Customize voice assistants and applications
+
+### Research and Development
+
+- **Voice Cloning**: Research applications for voice synthesis
+- **Audio Processing**: Experiment with different audio processing techniques
+- **Model Training**: Develop and test custom voice models
+
+## Performance Considerations
+
+- **Training Time**: RVC training typically takes 2-8 hours
+- **Cover Generation**: Cover creation takes 5-15 minutes
+- **Queue Position**: Jobs are processed in order
+- **Audio Quality**: Higher quality input produces better results
+
+## Next Steps
+
+- Explore [Song Generation](./song-generation-journey.mdx) to create original music
+- Learn about [Image Generation](./image-generation-journey.mdx) for visual content
+- Check out [Video Generation](./video-generation-journey.mdx) for multimedia projects
+
+## API Reference
+
+For detailed API documentation, see the [API Reference](/api-reference) section.

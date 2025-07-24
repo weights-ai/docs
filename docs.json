@@ -23,6 +23,16 @@
             "pages": ["index"]
           },
           {
+            "group": "Examples",
+            "pages": [
+              "examples/image-generation-journey",
+              "examples/video-generation-journey",
+              "examples/lora-training-journey",
+              "examples/rvc-voice-journey",
+              "examples/song-generation-journey"
+            ]
+          },
+          {
             "group": "API reference",
             "openapi": "https://app.stainless.com/api/spec/documented/weights/openapi.documented.yml"
           }

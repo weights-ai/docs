@@ -1,0 +1,3786 @@
+openapi: 3.0.3
+info:
+  title: Weights API
+  description: www.weights.com OpenAPI schema
+  version: 1.0.0
+servers:
+  - url: https://www.weights.com/api/external
+externalDocs:
+  url: https://weights.readme.io/reference/introduction
+paths:
+  /images/create:
+    post:
+      operationId: external-createImage
+      summary: Create an image
+      description: Creates a new image generation job using the provided prompt. The job will be queued for processing.
+      tags:
+        - Flux.Dev Images
+      security:
+        - Authorization: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  minLength: 1
+                  maxLength: 1000
+                styleId:
+                  type: string
+                secondStyleId:
+                  type: string
+                tertiaryStyleId:
+                  type: string
+                numImages:
+                  type: number
+                  minimum: 1
+                  maximum: 4
+                  default: 1
+                dimensions:
+                  type: string
+                  enum:
+                    - SQUARE
+                    - PORTRAIT
+                    - LANDSCAPE
+                  default: SQUARE
+              required:
+                - prompt
+      responses:
+        '200':
+          description: Returns the ID of the created image generation job.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - QUEUED
+                      - PENDING_WORKER
+                      - PROCESSING
+                      - ERRORED
+                      - SUCCEEDED
+                      - CANCELED
+                  prompt:
+                    type: string
+                  type:
+                    type: string
+                    enum:
+                      - IMAGE
+                      - VIDEO
+                      - EDIT
+                      - REMIX
+                      - INPAINT
+                      - UPSCALE
+                  numImages:
+                    type: number
+                  dimensions:
+                    type: string
+                    enum:
+                      - SQUARE
+                      - PORTRAIT
+                      - LANDSCAPE
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  outputUrls:
+                    type: array
+                    items:
+                      type: string
+                  lora:
+                    type: object
+                    nullable: true
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  secondaryLora:
+                    type: object
+                    nullable: true
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                required:
+                  - id
+                  - status
+                  - prompt
+                  - type
+                  - numImages
+                  - dimensions
+                  - createdAt
+                  - updatedAt
+                  - lora
+                  - secondaryLora
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const image = await client.images.create({ prompt: 'x' });
+
+          console.log(image.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const image = await client.images.create({ prompt: 'x' });
+
+              console.log(image.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const image = await client.images.create({ prompt: 'x' });
+
+            console.log(image.id);
+  /images/{id}:
+    get:
+      operationId: external-getVisualCreationJob
+      summary: Get image job status
+      description: Retrieves the status and results of a specific visual creation job by its ID.
+      tags:
+        - Flux.Dev Images
+      security:
+        - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Returns the status and results of a visual creation job.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - QUEUED
+                      - PENDING_WORKER
+                      - PROCESSING
+                      - ERRORED
+                      - SUCCEEDED
+                      - CANCELED
+                  prompt:
+                    type: string
+                  type:
+                    type: string
+                    enum:
+                      - IMAGE
+                      - VIDEO
+                      - EDIT
+                      - REMIX
+                      - INPAINT
+                      - UPSCALE
+                  numImages:
+                    type: number
+                  dimensions:
+                    type: string
+                    enum:
+                      - SQUARE
+                      - PORTRAIT
+                      - LANDSCAPE
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  outputUrls:
+                    type: array
+                    items:
+                      type: string
+                  lora:
+                    type: object
+                    nullable: true
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  secondaryLora:
+                    type: object
+                    nullable: true
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                required:
+                  - id
+                  - status
+                  - prompt
+                  - type
+                  - numImages
+                  - dimensions
+                  - createdAt
+                  - updatedAt
+                  - lora
+                  - secondaryLora
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const image = await client.images.retrieve('id');
+
+          console.log(image.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const image = await client.images.retrieve('id');
+
+              console.log(image.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const image = await client.images.retrieve('id');
+
+            console.log(image.id);
+  /videos/create:
+    post:
+      operationId: external-createVideo
+      summary: Create a video
+      description: Creates a new video generation job using the provided prompt. The job will be queued for processing.
+      tags:
+        - Video Generation
+      security:
+        - Authorization: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  minLength: 1
+                  maxLength: 1000
+                inputImageUrl:
+                  type: string
+                  format: uri
+              required:
+                - prompt
+                - inputImageUrl
+      responses:
+        '200':
+          description: Returns the ID of the created video generation job.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                required:
+                  - id
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const video = await client.videos.create({ inputImageUrl: 'https://example.com', prompt: 'x' });
+
+          console.log(video.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const video = await client.videos.create({ inputImageUrl: 'https://example.com', prompt: 'x' });
+
+              console.log(video.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const video = await client.videos.create({ inputImageUrl: 'https://example.com', prompt: 'x' });
+
+            console.log(video.id);
+  /images:
+    get:
+      operationId: external-getVisualCreationJobs
+      summary: List visual creation jobs
+      description: >-
+        Retrieves a paginated list of visual creation jobs for the authenticated user, sorted by creation date
+        in descending order.
+      tags:
+        - Flux.Dev Images
+      security:
+        - Authorization: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: number
+            minimum: 1
+            maximum: 50
+            default: 25
+        - in: query
+          name: cursor
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Returns a paginated list of visual creation jobs for the authenticated user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                            - QUEUED
+                            - PENDING_WORKER
+                            - PROCESSING
+                            - ERRORED
+                            - SUCCEEDED
+                            - CANCELED
+                        prompt:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                            - IMAGE
+                            - VIDEO
+                            - EDIT
+                            - REMIX
+                            - INPAINT
+                            - UPSCALE
+                        numImages:
+                          type: number
+                        dimensions:
+                          type: string
+                          enum:
+                            - SQUARE
+                            - PORTRAIT
+                            - LANDSCAPE
+                        createdAt:
+                          type: string
+                        updatedAt:
+                          type: string
+                        outputUrls:
+                          type: array
+                          items:
+                            type: string
+                        queuePosition:
+                          type: number
+                          nullable: true
+                      required:
+                        - id
+                        - status
+                        - prompt
+                        - type
+                        - numImages
+                        - dimensions
+                        - createdAt
+                        - updatedAt
+                required:
+                  - jobs
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const images = await client.images.list();
+
+          console.log(images.jobs);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const images = await client.images.list();
+
+              console.log(images.jobs);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const images = await client.images.list();
+
+            console.log(images.jobs);
+  /image-lora-models/create:
+    post:
+      operationId: external-createImageLoraModel
+      summary: Create an image LoRA model
+      description: >-
+        Creates a new image LoRA model training job. Requires 5-30 images with their URLs. The images should
+        already be uploaded to a web-accessible location. The training job will be queued for processing.
+      tags:
+        - Flux.Dev Loras
+      security:
+        - Authorization: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                images:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        format: uri
+                      description:
+                        type: string
+                    required:
+                      - url
+                  minItems: 5
+                  maxItems: 30
+                isPublic:
+                  type: boolean
+                  default: true
+                triggerWord:
+                  type: string
+                validationPrompt:
+                  type: string
+              required:
+                - name
+                - images
+      responses:
+        '200':
+          description: Returns the ID of the created image LoRA training job.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  trainingJobId:
+                    type: string
+                required:
+                  - id
+                  - trainingJobId
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const imageLoraModel = await client.imageLoraModels.create({
+            images: [
+              { url: 'https://example.com' },
+              { url: 'https://example.com' },
+              { url: 'https://example.com' },
+              { url: 'https://example.com' },
+              { url: 'https://example.com' },
+            ],
+            name: 'x',
+          });
+
+          console.log(imageLoraModel.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const imageLoraModel = await client.imageLoraModels.create({
+                images: [
+                  { url: 'https://example.com' },
+                  { url: 'https://example.com' },
+                  { url: 'https://example.com' },
+                  { url: 'https://example.com' },
+                  { url: 'https://example.com' },
+                ],
+                name: 'x',
+              });
+
+              console.log(imageLoraModel.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const imageLoraModel = await client.imageLoraModels.create({
+              images: [
+                { url: 'https://example.com' },
+                { url: 'https://example.com' },
+                { url: 'https://example.com' },
+                { url: 'https://example.com' },
+                { url: 'https://example.com' },
+              ],
+              name: 'x',
+            });
+
+            console.log(imageLoraModel.id);
+  /image-lora-models/{id}:
+    get:
+      operationId: external-getImageLoraModelById
+      summary: Get an image LoRA model by ID
+      description: >-
+        Retrieves the details of a specific image LoRA model by its ID. Returns null if the model is not found
+        or doesn't belong to the authenticated user (unless it's public).
+      tags:
+        - Flux.Dev Loras
+      security:
+        - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Returns the details of the specified image LoRA model.
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: true
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+                  triggers:
+                    type: array
+                    items:
+                      type: string
+                  image:
+                    type: string
+                    nullable: true
+                  blurDataUrl:
+                    type: string
+                    nullable: true
+                  isNSFW:
+                    type: boolean
+                  isDeleted:
+                    type: boolean
+                  isUnlisted:
+                    type: boolean
+                  isPublic:
+                    type: boolean
+                  createdAt:
+                    type: string
+                  userId:
+                    type: string
+                  trainingJob:
+                    type: object
+                    nullable: true
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+                        enum:
+                          - QUEUED
+                          - PENDING_WORKER
+                          - PROCESSING
+                          - ERRORED
+                          - SUCCEEDED
+                          - CANCELED
+                      createdAt:
+                        type: string
+                      shortStatusText:
+                        type: string
+                        nullable: true
+                      initialQueuePosition:
+                        type: number
+                        nullable: true
+                    required:
+                      - id
+                      - status
+                      - createdAt
+                      - initialQueuePosition
+                required:
+                  - id
+                  - name
+                  - triggers
+                  - isNSFW
+                  - isDeleted
+                  - isUnlisted
+                  - isPublic
+                  - createdAt
+                  - userId
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const imageLoraModel = await client.imageLoraModels.retrieve('id');
+
+          console.log(imageLoraModel.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const imageLoraModel = await client.imageLoraModels.retrieve('id');
+
+              console.log(imageLoraModel.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const imageLoraModel = await client.imageLoraModels.retrieve('id');
+
+            console.log(imageLoraModel.id);
+  /image-lora-models/{id}/status:
+    get:
+      operationId: external-getImageLoraModelStatus
+      summary: Get the training status of an image LoRA model
+      description: >-
+        Retrieves the current training status of a specific image LoRA model. Useful for polling the status of
+        a training job. Returns null if the model is not found or doesn't belong to the authenticated user.
+      tags:
+        - Flux.Dev Loras
+      security:
+        - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Returns the training status of the specified image LoRA model.
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: true
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - QUEUED
+                      - PENDING_WORKER
+                      - PROCESSING
+                      - ERRORED
+                      - SUCCEEDED
+                      - CANCELED
+                  shortStatusText:
+                    type: string
+                    nullable: true
+                  queuePosition:
+                    type: number
+                    nullable: true
+                  createdAt:
+                    type: string
+                required:
+                  - id
+                  - status
+                  - shortStatusText
+                  - queuePosition
+                  - createdAt
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const response = await client.imageLoraModels.retrieveStatus('id');
+
+          console.log(response.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const response = await client.imageLoraModels.retrieveStatus('id');
+
+              console.log(response.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const response = await client.imageLoraModels.retrieveStatus('id');
+
+            console.log(response.id);
+  /image-lora-models:
+    get:
+      operationId: external-getImageLoraModels
+      summary: List image LoRA models
+      description: >-
+        Retrieves a paginated list of image LoRA models created by the authenticated user, sorted by creation
+        date in descending order. Optionally filter results by name search.
+      tags:
+        - Flux.Dev Loras
+      security:
+        - Authorization: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: number
+            minimum: 1
+            maximum: 50
+            default: 25
+        - in: query
+          name: cursor
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Returns a paginated list of image LoRA models for the authenticated user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                          nullable: true
+                        triggers:
+                          type: array
+                          items:
+                            type: string
+                        image:
+                          type: string
+                          nullable: true
+                        blurDataUrl:
+                          type: string
+                          nullable: true
+                        isNSFW:
+                          type: boolean
+                        isDeleted:
+                          type: boolean
+                        isUnlisted:
+                          type: boolean
+                        isPublic:
+                          type: boolean
+                        createdAt:
+                          type: string
+                        userId:
+                          type: string
+                        trainingJob:
+                          type: object
+                          nullable: true
+                          properties:
+                            id:
+                              type: string
+                            status:
+                              type: string
+                              enum:
+                                - QUEUED
+                                - PENDING_WORKER
+                                - PROCESSING
+                                - ERRORED
+                                - SUCCEEDED
+                                - CANCELED
+                            createdAt:
+                              type: string
+                            shortStatusText:
+                              type: string
+                              nullable: true
+                            initialQueuePosition:
+                              type: number
+                              nullable: true
+                          required:
+                            - id
+                            - status
+                            - createdAt
+                            - initialQueuePosition
+                      required:
+                        - id
+                        - name
+                        - triggers
+                        - isNSFW
+                        - isDeleted
+                        - isUnlisted
+                        - isPublic
+                        - createdAt
+                        - userId
+                required:
+                  - models
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const imageLoraModels = await client.imageLoraModels.list();
+
+          console.log(imageLoraModels.models);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const imageLoraModels = await client.imageLoraModels.list();
+
+              console.log(imageLoraModels.models);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const imageLoraModels = await client.imageLoraModels.list();
+
+            console.log(imageLoraModels.models);
+  /image-lora-models/search:
+    get:
+      operationId: external-searchImageLoraModels
+      summary: Search public image LoRA models
+      description: >-
+        Searches through all public image LoRA models in the database. Results are sorted by creation date.
+        This endpoint does not require authentication.
+      tags:
+        - Flux.Dev Loras
+      security:
+        - Authorization: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: number
+            minimum: 1
+            maximum: 50
+            default: 25
+        - in: query
+          name: cursor
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Returns a paginated list of public image LoRA models matching the search criteria.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                          nullable: true
+                        triggers:
+                          type: array
+                          items:
+                            type: string
+                        image:
+                          type: string
+                          nullable: true
+                        blurDataUrl:
+                          type: string
+                          nullable: true
+                        isNSFW:
+                          type: boolean
+                        isDeleted:
+                          type: boolean
+                        isUnlisted:
+                          type: boolean
+                        isPublic:
+                          type: boolean
+                        createdAt:
+                          type: string
+                        userId:
+                          type: string
+                        trainingJob:
+                          type: object
+                          nullable: true
+                          properties:
+                            id:
+                              type: string
+                            status:
+                              type: string
+                              enum:
+                                - QUEUED
+                                - PENDING_WORKER
+                                - PROCESSING
+                                - ERRORED
+                                - SUCCEEDED
+                                - CANCELED
+                            createdAt:
+                              type: string
+                            shortStatusText:
+                              type: string
+                              nullable: true
+                            initialQueuePosition:
+                              type: number
+                              nullable: true
+                          required:
+                            - id
+                            - status
+                            - createdAt
+                            - initialQueuePosition
+                      required:
+                        - id
+                        - name
+                        - triggers
+                        - isNSFW
+                        - isDeleted
+                        - isUnlisted
+                        - isPublic
+                        - createdAt
+                        - userId
+                required:
+                  - models
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const response = await client.imageLoraModels.search({ search: 'x' });
+
+          console.log(response.models);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const response = await client.imageLoraModels.search({ search: 'x' });
+
+              console.log(response.models);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const response = await client.imageLoraModels.search({ search: 'x' });
+
+            console.log(response.models);
+  /image-lora-models/{id}/download:
+    get:
+      operationId: external-getLoraModelDownloadUrl
+      summary: Get download URL for a trained Image LoRA model
+      description: >-
+        Retrieves a signed download URL for a trained Image LoRA model. The model must belong to the
+        authenticated user and must have been trained via the API. The URL expires in 5 minutes.
+      tags:
+        - Flux.Dev Loras
+      security:
+        - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Returns a signed download URL for the specified Image LoRA model.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  downloadUrl:
+                    type: string
+                    nullable: true
+                required:
+                  - downloadUrl
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+  /covers:
+    get:
+      operationId: external-getCovers
+      summary: Retrieve all covers
+      description: Retrieves a paginated list of AI cover jobs belonging to the currently authenticated user.
+      tags:
+        - RVCv2 Covers
+      security:
+        - Authorization: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: number
+            minimum: 1
+            maximum: 50
+            default: 25
+        - in: query
+          name: cursor
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Returns a paginated list of covers for the authenticated user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  covers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        createdAt:
+                          type: string
+                        outputUrl:
+                          type: string
+                          nullable: true
+                        inputFileName:
+                          type: string
+                          nullable: true
+                        status:
+                          type: string
+                          enum:
+                            - QUEUED
+                            - PENDING_WORKER
+                            - PROCESSING
+                            - ERRORED
+                            - SUCCEEDED
+                            - CANCELED
+                        inputUrl:
+                          type: string
+                          nullable: true
+                        ttsText:
+                          type: string
+                          nullable: true
+                        stemOnly:
+                          type: boolean
+                          nullable: true
+                        preStemmed:
+                          type: boolean
+                          nullable: true
+                        pitch:
+                          type: number
+                          nullable: true
+                        queuePosition:
+                          type: number
+                          nullable: true
+                      required:
+                        - id
+                        - createdAt
+                        - status
+                required:
+                  - covers
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const covers = await client.covers.list();
+
+          console.log(covers.covers);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const covers = await client.covers.list();
+
+              console.log(covers.covers);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const covers = await client.covers.list();
+
+            console.log(covers.covers);
+  /covers/{id}:
+    get:
+      operationId: external-getCoverById
+      summary: Get a cover by ID
+      description: >-
+        Retrieves the details of a specific AI cover job by its ID. Returns null if the cover is not found or
+        doesn't belong to the authenticated user.
+      tags:
+        - RVCv2 Covers
+      security:
+        - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Returns the details of the specified cover job.
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: true
+                properties:
+                  id:
+                    type: string
+                  createdAt:
+                    type: string
+                  outputUrl:
+                    type: string
+                    nullable: true
+                  inputFileName:
+                    type: string
+                    nullable: true
+                  status:
+                    type: string
+                    enum:
+                      - QUEUED
+                      - PENDING_WORKER
+                      - PROCESSING
+                      - ERRORED
+                      - SUCCEEDED
+                      - CANCELED
+                  inputUrl:
+                    type: string
+                    nullable: true
+                  ttsText:
+                    type: string
+                    nullable: true
+                  stemOnly:
+                    type: boolean
+                    nullable: true
+                  preStemmed:
+                    type: boolean
+                    nullable: true
+                  pitch:
+                    type: number
+                    nullable: true
+                  queuePosition:
+                    type: number
+                    nullable: true
+                required:
+                  - id
+                  - createdAt
+                  - status
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const cover = await client.covers.retrieve('id');
+
+          console.log(cover.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const cover = await client.covers.retrieve('id');
+
+              console.log(cover.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const cover = await client.covers.retrieve('id');
+
+            console.log(cover.id);
+  /covers/create:
+    post:
+      operationId: external-createCover
+      summary: Create a cover
+      description: >-
+        Creates a new AI cover job for the authenticated user using the specified RVC model and audio file.
+        The job is added to the queue for further processing.
+      tags:
+        - RVCv2 Covers
+      security:
+        - Authorization: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rvcModelId:
+                  type: string
+                inputUrl:
+                  type: string
+                inputFileName:
+                  type: string
+                pitch:
+                  type: number
+                  default: 0
+                preStemmed:
+                  type: boolean
+                  default: false
+                stemOnly:
+                  type: boolean
+                  default: false
+                instrumentalPitch:
+                  type: number
+                  default: 0
+                deEcho:
+                  type: boolean
+                  default: false
+                isolateMainVocals:
+                  type: boolean
+                  default: false
+                consonantProtection:
+                  type: number
+                volumeEnvelope:
+                  type: number
+              required:
+                - rvcModelId
+                - inputUrl
+      responses:
+        '200':
+          description: Returns the newly created cover job details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  createdAt:
+                    type: string
+                  outputUrl:
+                    type: string
+                    nullable: true
+                  inputFileName:
+                    type: string
+                    nullable: true
+                  status:
+                    type: string
+                    enum:
+                      - QUEUED
+                      - PENDING_WORKER
+                      - PROCESSING
+                      - ERRORED
+                      - SUCCEEDED
+                      - CANCELED
+                  inputUrl:
+                    type: string
+                    nullable: true
+                  ttsText:
+                    type: string
+                    nullable: true
+                  stemOnly:
+                    type: boolean
+                    nullable: true
+                  preStemmed:
+                    type: boolean
+                    nullable: true
+                  pitch:
+                    type: number
+                    nullable: true
+                  queuePosition:
+                    type: number
+                    nullable: true
+                required:
+                  - id
+                  - createdAt
+                  - status
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const cover = await client.covers.create({ inputUrl: 'inputUrl', rvcModelId: 'rvcModelId' });
+
+          console.log(cover.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const cover = await client.covers.create({ inputUrl: 'inputUrl', rvcModelId: 'rvcModelId' });
+
+              console.log(cover.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const cover = await client.covers.create({ inputUrl: 'inputUrl', rvcModelId: 'rvcModelId' });
+
+            console.log(cover.id);
+  /rvc-models/upload:
+    post:
+      operationId: external-uploadModel
+      summary: Upload an RVC model from a url
+      description: >-
+        Uploads an existing RVC model to be used with Weights from the specified URL and creates a new model
+        entry in the database. The user must be authenticated.
+      tags:
+        - RVCv2 Models
+      security:
+        - Authorization: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+              required:
+                - url
+                - title
+                - description
+      responses:
+        '200':
+          description: Returns the details of the newly created RVC model.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+                  createdAt:
+                    type: string
+                required:
+                  - id
+                  - title
+                  - createdAt
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: >-
+          import Weights from '@weights-ai/sdk';
+
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+
+          const response = await client.rvcModels.upload({ description: 'description', title: 'title', url:
+          'url' });
+
+
+          console.log(response.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: >-
+              import Weights from '@weights-ai/sdk';
+
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+
+              const response = await client.rvcModels.upload({ description: 'description', title: 'title',
+              url: 'url' });
+
+
+              console.log(response.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Weights from '@weights-ai/sdk';
+
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+
+            const response = await client.rvcModels.upload({ description: 'description', title: 'title', url:
+            'url' });
+
+
+            console.log(response.id);
+  /rvc-models/training/create:
+    post:
+      operationId: external-createTrainingJob
+      summary: Create an RVC model training job
+      description: >-
+        Creates a new RVC model training job using the provided audio files. The audio files should already be
+        uploaded to a web-accessible location. The training job will be queued for processing.
+      tags:
+        - RVCv2 Models
+      security:
+        - Authorization: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                description:
+                  type: string
+                audioFiles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        format: uri
+                      name:
+                        type: string
+                        minLength: 1
+                        maxLength: 200
+                      length:
+                        type: integer
+                        minimum: 0
+                        exclusiveMinimum: true
+                    required:
+                      - url
+                      - name
+                      - length
+                  minItems: 1
+                  maxItems: 50
+                isPublic:
+                  type: boolean
+                  default: true
+                runKaraoke:
+                  type: boolean
+                  default: false
+                runDeEchoDeReverb:
+                  type: boolean
+                  default: false
+              required:
+                - name
+                - audioFiles
+      responses:
+        '200':
+          description: Returns the details of the created RVC model training job.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+                  image:
+                    type: string
+                    nullable: true
+                  status:
+                    type: string
+                    nullable: true
+                    enum:
+                      - QUEUED
+                      - PENDING_WORKER
+                      - PROCESSING
+                      - ERRORED
+                      - SUCCEEDED
+                      - CANCELED
+                      - null
+                  shortStatusText:
+                    type: string
+                    nullable: true
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  startTime:
+                    type: string
+                    nullable: true
+                  endTime:
+                    type: string
+                    nullable: true
+                  isPublic:
+                    type: boolean
+                  version:
+                    type: number
+                  attempt:
+                    type: number
+                  initialQueuePosition:
+                    type: number
+                    nullable: true
+                  isPremiumJob:
+                    type: boolean
+                  runKaraoke:
+                    type: boolean
+                  runDeEchoDeReverb:
+                    type: boolean
+                  rvcModelId:
+                    type: string
+                    nullable: true
+                  rvcModel:
+                    type: object
+                    nullable: true
+                    properties:
+                      id:
+                        type: string
+                      title:
+                        type: string
+                      simplifiedTitle:
+                        type: string
+                      isDeleted:
+                        type: boolean
+                      isPublic:
+                        type: boolean
+                      isModRemoved:
+                        type: boolean
+                    required:
+                      - id
+                      - title
+                      - simplifiedTitle
+                      - isDeleted
+                      - isPublic
+                      - isModRemoved
+                  audioFiles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        url:
+                          type: string
+                        length:
+                          type: number
+                        isYoutube:
+                          type: boolean
+                        youtubeUrl:
+                          type: string
+                          nullable: true
+                        isPreStemmed:
+                          type: boolean
+                        createdAt:
+                          type: string
+                      required:
+                        - id
+                        - name
+                        - url
+                        - length
+                        - isYoutube
+                        - isPreStemmed
+                        - createdAt
+                  queuePosition:
+                    type: number
+                    nullable: true
+                required:
+                  - id
+                  - name
+                  - createdAt
+                  - updatedAt
+                  - isPublic
+                  - version
+                  - attempt
+                  - isPremiumJob
+                  - runKaraoke
+                  - runDeEchoDeReverb
+                  - audioFiles
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const training = await client.rvcModels.training.create({
+            audioFiles: [{ length: 1, name: 'x', url: 'https://example.com' }],
+            name: 'x',
+          });
+
+          console.log(training.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const training = await client.rvcModels.training.create({
+                audioFiles: [{ length: 1, name: 'x', url: 'https://example.com' }],
+                name: 'x',
+              });
+
+              console.log(training.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const training = await client.rvcModels.training.create({
+              audioFiles: [{ length: 1, name: 'x', url: 'https://example.com' }],
+              name: 'x',
+            });
+
+            console.log(training.id);
+  /rvc-models:
+    get:
+      operationId: external-getModels
+      summary: Retrieve all RVC models and training jobs
+      description: >-
+        Retrieves all RVC models (both uploaded and training jobs) for the authenticated user, returned in
+        descending order by creation date. Pagination is supported through a cursor-based approach. Optionally
+        filter results by name search.
+      tags:
+        - RVCv2 Models
+      security:
+        - Authorization: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: number
+            minimum: 1
+            maximum: 50
+            default: 25
+        - in: query
+          name: cursor
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Returns a paginated list of RVC models and training jobs for the authenticated user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                          nullable: true
+                        status:
+                          type: string
+                          nullable: true
+                          enum:
+                            - QUEUED
+                            - PENDING_WORKER
+                            - PROCESSING
+                            - ERRORED
+                            - SUCCEEDED
+                            - CANCELED
+                            - null
+                        shortStatusText:
+                          type: string
+                          nullable: true
+                        createdAt:
+                          type: string
+                        updatedAt:
+                          type: string
+                        isPublic:
+                          type: boolean
+                        type:
+                          type: string
+                          enum:
+                            - uploaded
+                            - training
+                        title:
+                          type: string
+                          nullable: true
+                        simplifiedTitle:
+                          type: string
+                          nullable: true
+                        url:
+                          type: string
+                          nullable: true
+                        startTime:
+                          type: string
+                          nullable: true
+                        endTime:
+                          type: string
+                          nullable: true
+                        version:
+                          type: number
+                          nullable: true
+                        attempt:
+                          type: number
+                          nullable: true
+                        initialQueuePosition:
+                          type: number
+                          nullable: true
+                        isPremiumJob:
+                          type: boolean
+                          nullable: true
+                        runKaraoke:
+                          type: boolean
+                          nullable: true
+                        runDeEchoDeReverb:
+                          type: boolean
+                          nullable: true
+                        rvcModelId:
+                          type: string
+                          nullable: true
+                        rvcModel:
+                          type: object
+                          nullable: true
+                          properties:
+                            id:
+                              type: string
+                            title:
+                              type: string
+                            simplifiedTitle:
+                              type: string
+                            isDeleted:
+                              type: boolean
+                            isPublic:
+                              type: boolean
+                            isModRemoved:
+                              type: boolean
+                          required:
+                            - id
+                            - title
+                            - simplifiedTitle
+                            - isDeleted
+                            - isPublic
+                            - isModRemoved
+                        audioFiles:
+                          type: array
+                          nullable: true
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              name:
+                                type: string
+                              url:
+                                type: string
+                              length:
+                                type: number
+                              isYoutube:
+                                type: boolean
+                              youtubeUrl:
+                                type: string
+                                nullable: true
+                              isPreStemmed:
+                                type: boolean
+                              createdAt:
+                                type: string
+                            required:
+                              - id
+                              - name
+                              - url
+                              - length
+                              - isYoutube
+                              - isPreStemmed
+                              - createdAt
+                        queuePosition:
+                          type: number
+                          nullable: true
+                      required:
+                        - id
+                        - name
+                        - createdAt
+                        - updatedAt
+                        - isPublic
+                        - type
+                required:
+                  - items
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const rvcModels = await client.rvcModels.list();
+
+          console.log(rvcModels.items);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const rvcModels = await client.rvcModels.list();
+
+              console.log(rvcModels.items);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const rvcModels = await client.rvcModels.list();
+
+            console.log(rvcModels.items);
+  /rvc-models/uploaded/{id}:
+    get:
+      operationId: external-getModelById
+      summary: Get an uploaded RVC model by ID
+      description: >-
+        Retrieves the details of a specific uploaded RVC model by its ID. Returns null if the model is not
+        found or doesn't belong to the authenticated user.
+      tags:
+        - RVCv2 Models
+      security:
+        - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Returns the details of the specified uploaded RVC model.
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: true
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+                  createdAt:
+                    type: string
+                required:
+                  - id
+                  - title
+                  - createdAt
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const response = await client.rvcModels.retrieveUploaded('id');
+
+          console.log(response.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const response = await client.rvcModels.retrieveUploaded('id');
+
+              console.log(response.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const response = await client.rvcModels.retrieveUploaded('id');
+
+            console.log(response.id);
+  /rvc-models/training/{id}:
+    get:
+      operationId: external-getTrainingJobById
+      summary: Get an RVC model training job by ID
+      description: >-
+        Retrieves the details of a specific RVC model training job by its ID. Returns null if the job is not
+        found or doesn't belong to the authenticated user.
+      tags:
+        - RVCv2 Models
+      security:
+        - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Returns the details of the specified RVC model training job.
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: true
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+                  image:
+                    type: string
+                    nullable: true
+                  status:
+                    type: string
+                    nullable: true
+                    enum:
+                      - QUEUED
+                      - PENDING_WORKER
+                      - PROCESSING
+                      - ERRORED
+                      - SUCCEEDED
+                      - CANCELED
+                      - null
+                  shortStatusText:
+                    type: string
+                    nullable: true
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  startTime:
+                    type: string
+                    nullable: true
+                  endTime:
+                    type: string
+                    nullable: true
+                  isPublic:
+                    type: boolean
+                  version:
+                    type: number
+                  attempt:
+                    type: number
+                  initialQueuePosition:
+                    type: number
+                    nullable: true
+                  isPremiumJob:
+                    type: boolean
+                  runKaraoke:
+                    type: boolean
+                  runDeEchoDeReverb:
+                    type: boolean
+                  rvcModelId:
+                    type: string
+                    nullable: true
+                  rvcModel:
+                    type: object
+                    nullable: true
+                    properties:
+                      id:
+                        type: string
+                      title:
+                        type: string
+                      simplifiedTitle:
+                        type: string
+                      isDeleted:
+                        type: boolean
+                      isPublic:
+                        type: boolean
+                      isModRemoved:
+                        type: boolean
+                    required:
+                      - id
+                      - title
+                      - simplifiedTitle
+                      - isDeleted
+                      - isPublic
+                      - isModRemoved
+                  audioFiles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        url:
+                          type: string
+                        length:
+                          type: number
+                        isYoutube:
+                          type: boolean
+                        youtubeUrl:
+                          type: string
+                          nullable: true
+                        isPreStemmed:
+                          type: boolean
+                        createdAt:
+                          type: string
+                      required:
+                        - id
+                        - name
+                        - url
+                        - length
+                        - isYoutube
+                        - isPreStemmed
+                        - createdAt
+                  queuePosition:
+                    type: number
+                    nullable: true
+                required:
+                  - id
+                  - name
+                  - createdAt
+                  - updatedAt
+                  - isPublic
+                  - version
+                  - attempt
+                  - isPremiumJob
+                  - runKaraoke
+                  - runDeEchoDeReverb
+                  - audioFiles
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const training = await client.rvcModels.training.retrieve('id');
+
+          console.log(training.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const training = await client.rvcModels.training.retrieve('id');
+
+              console.log(training.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const training = await client.rvcModels.training.retrieve('id');
+
+            console.log(training.id);
+  /rvc-models/training/{id}/status:
+    get:
+      operationId: external-getTrainingJobStatus
+      summary: Get the training status of an RVC model training job
+      description: >-
+        Retrieves the current training status of a specific RVC model training job. Useful for polling the
+        status of a training job. Returns null if the job is not found or doesn't belong to the authenticated
+        user.
+      tags:
+        - RVCv2 Models
+      security:
+        - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Returns the training status of the specified RVC model training job.
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: true
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - QUEUED
+                      - PENDING_WORKER
+                      - PROCESSING
+                      - ERRORED
+                      - SUCCEEDED
+                      - CANCELED
+                  shortStatusText:
+                    type: string
+                    nullable: true
+                  queuePosition:
+                    type: number
+                    nullable: true
+                  createdAt:
+                    type: string
+                required:
+                  - id
+                  - status
+                  - shortStatusText
+                  - queuePosition
+                  - createdAt
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const response = await client.rvcModels.training.status('id');
+
+          console.log(response.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const response = await client.rvcModels.training.status('id');
+
+              console.log(response.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const response = await client.rvcModels.training.status('id');
+
+            console.log(response.id);
+  /rvc-models/search:
+    get:
+      operationId: external-searchRvcModels
+      summary: Search public RVC models
+      description: >-
+        Searches through all public RVC models in the database. Results are sorted by creation date. This
+        endpoint does not require authentication.
+      tags:
+        - RVCv2 Models
+      security:
+        - Authorization: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: number
+            minimum: 1
+            maximum: 50
+            default: 25
+        - in: query
+          name: cursor
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Returns a paginated list of public RVC models matching the search criteria.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        title:
+                          type: string
+                        createdAt:
+                          type: string
+                      required:
+                        - id
+                        - title
+                        - createdAt
+                required:
+                  - models
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const response = await client.rvcModels.search({ search: 'x' });
+
+          console.log(response.models);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const response = await client.rvcModels.search({ search: 'x' });
+
+              console.log(response.models);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const response = await client.rvcModels.search({ search: 'x' });
+
+            console.log(response.models);
+  /rvc-models/{id}/download:
+    get:
+      operationId: external-getModelDownloadUrl
+      summary: Get download URL for a trained RVC model
+      description: >-
+        Retrieves a signed download URL for a trained RVC model. The model must belong to the authenticated
+        user and must have been trained via the API. The URL expires in 5 minutes.
+      tags:
+        - RVCv2 Models
+      security:
+        - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Returns a signed download URL for the specified RVC model.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  downloadUrl:
+                    type: string
+                    nullable: true
+                required:
+                  - downloadUrl
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const response = await client.rvcModels.retrieveDownloadURL('id');
+
+          console.log(response.downloadUrl);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const response = await client.rvcModels.retrieveDownloadURL('id');
+
+              console.log(response.downloadUrl);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const response = await client.rvcModels.retrieveDownloadURL('id');
+
+            console.log(response.downloadUrl);
+  /songs/create:
+    post:
+      operationId: external-createGeneratedSong
+      summary: Generate a song from lyrics
+      description: >-
+        Creates a new song generation job using the provided lyrics. The lyrics must be in English and cannot
+        exceed 380 characters. The job will be queued for processing and you can check its status using the
+        getGeneratedSongById endpoint.
+      tags:
+        - Songs
+      security:
+        - Authorization: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lyrics:
+                  type: string
+                  maxLength: 380
+                section:
+                  type: string
+                  enum:
+                    - verse
+                    - chorus
+                    - guitar-stabs
+                    - all
+                    - all_v2
+                  default: all
+              required:
+                - lyrics
+      responses:
+        '200':
+          description: Returns the ID of the created song generation job.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                required:
+                  - id
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const song = await client.songs.create({ lyrics: 'lyrics' });
+
+          console.log(song.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const song = await client.songs.create({ lyrics: 'lyrics' });
+
+              console.log(song.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const song = await client.songs.create({ lyrics: 'lyrics' });
+
+            console.log(song.id);
+  /songs/{id}:
+    get:
+      operationId: external-getGeneratedSongById
+      summary: Get a generated song
+      description: >-
+        Retrieves the details and status of a specific song generation job. Returns null if the song is not
+        found or doesn't belong to the authenticated user.
+      tags:
+        - Songs
+      security:
+        - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Returns the details and status of a specific song generation job.
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: true
+                properties:
+                  id:
+                    type: string
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  startTime:
+                    type: string
+                    nullable: true
+                  endTime:
+                    type: string
+                    nullable: true
+                  status:
+                    type: string
+                    enum:
+                      - QUEUED
+                      - PENDING_WORKER
+                      - PROCESSING
+                      - ERRORED
+                      - SUCCEEDED
+                      - CANCELED
+                  attempt:
+                    type: integer
+                  outputUrl:
+                    type: string
+                    nullable: true
+                  lyrics:
+                    type: string
+                  queuePosition:
+                    type: number
+                    nullable: true
+                required:
+                  - id
+                  - createdAt
+                  - updatedAt
+                  - startTime
+                  - endTime
+                  - status
+                  - attempt
+                  - outputUrl
+                  - lyrics
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const song = await client.songs.retrieve('id');
+
+          console.log(song.id);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const song = await client.songs.retrieve('id');
+
+              console.log(song.id);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const song = await client.songs.retrieve('id');
+
+            console.log(song.id);
+  /songs:
+    get:
+      operationId: external-getGeneratedSongs
+      summary: List generated songs
+      description: >-
+        Returns a paginated list of all songs generated by the authenticated user, sorted by creation date in
+        descending order. Optionally filter results by title search. You can paginate by passing the last song
+        ID from the previous page.
+      tags:
+        - Songs
+      security:
+        - Authorization: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            nullable: true
+        - in: query
+          name: limit
+          schema:
+            type: number
+            minimum: 1
+            maximum: 50
+            default: 25
+        - in: query
+          name: cursor
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Returns a paginated list of all songs generated by the authenticated user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  songs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        createdAt:
+                          type: string
+                        updatedAt:
+                          type: string
+                        startTime:
+                          type: string
+                          nullable: true
+                        endTime:
+                          type: string
+                          nullable: true
+                        status:
+                          type: string
+                          enum:
+                            - QUEUED
+                            - PENDING_WORKER
+                            - PROCESSING
+                            - ERRORED
+                            - SUCCEEDED
+                            - CANCELED
+                        attempt:
+                          type: integer
+                        outputUrl:
+                          type: string
+                          nullable: true
+                        lyrics:
+                          type: string
+                        queuePosition:
+                          type: number
+                          nullable: true
+                      required:
+                        - id
+                        - createdAt
+                        - updatedAt
+                        - startTime
+                        - endTime
+                        - status
+                        - attempt
+                        - outputUrl
+                        - lyrics
+                required:
+                  - songs
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.BAD_REQUEST'
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.NOT_FOUND'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const songs = await client.songs.list();
+
+          console.log(songs.songs);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const songs = await client.songs.list();
+
+              console.log(songs.songs);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const songs = await client.songs.list();
+
+            console.log(songs.songs);
+  /user:
+    get:
+      operationId: external-getOwnUser
+      summary: Get authenticated user details
+      description: >-
+        Returns the profile information of the currently authenticated user, including their ID, email, name,
+        role, and profile image.
+      tags:
+        - User
+      security:
+        - Authorization: []
+      responses:
+        '200':
+          description: Returns the profile information of the currently authenticated user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      email:
+                        type: string
+                        nullable: true
+                      image:
+                        type: string
+                        nullable: true
+                      role:
+                        type: string
+                        nullable: true
+                      name:
+                        type: string
+                        nullable: true
+                    required:
+                      - id
+                required:
+                  - user
+        '401':
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.UNAUTHORIZED'
+        '403':
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.FORBIDDEN'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const user = await client.user.retrieve();
+
+          console.log(user.user);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const user = await client.user.retrieve();
+
+              console.log(user.user);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const user = await client.user.retrieve();
+
+            console.log(user.user);
+components:
+  securitySchemes:
+    Authorization:
+      type: http
+      scheme: bearer
+  schemas:
+    error.BAD_REQUEST:
+      type: object
+      properties:
+        message:
+          type: string
+          description: The error message
+          example: Invalid input data
+        code:
+          type: string
+          description: The error code
+          example: BAD_REQUEST
+        issues:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+          description: An array of issues that were responsible for the error
+          example: []
+      required:
+        - message
+        - code
+      title: Invalid input data error (400)
+      description: The error information
+      example:
+        code: BAD_REQUEST
+        message: Invalid input data
+        issues: []
+    error.UNAUTHORIZED:
+      type: object
+      properties:
+        message:
+          type: string
+          description: The error message
+          example: Authorization not provided
+        code:
+          type: string
+          description: The error code
+          example: UNAUTHORIZED
+        issues:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+          description: An array of issues that were responsible for the error
+          example: []
+      required:
+        - message
+        - code
+      title: Authorization not provided error (401)
+      description: The error information
+      example:
+        code: UNAUTHORIZED
+        message: Authorization not provided
+        issues: []
+    error.FORBIDDEN:
+      type: object
+      properties:
+        message:
+          type: string
+          description: The error message
+          example: Insufficient access
+        code:
+          type: string
+          description: The error code
+          example: FORBIDDEN
+        issues:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+          description: An array of issues that were responsible for the error
+          example: []
+      required:
+        - message
+        - code
+      title: Insufficient access error (403)
+      description: The error information
+      example:
+        code: FORBIDDEN
+        message: Insufficient access
+        issues: []
+    error.INTERNAL_SERVER_ERROR:
+      type: object
+      properties:
+        message:
+          type: string
+          description: The error message
+          example: Internal server error
+        code:
+          type: string
+          description: The error code
+          example: INTERNAL_SERVER_ERROR
+        issues:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+          description: An array of issues that were responsible for the error
+          example: []
+      required:
+        - message
+        - code
+      title: Internal server error error (500)
+      description: The error information
+      example:
+        code: INTERNAL_SERVER_ERROR
+        message: Internal server error
+        issues: []
+    error.NOT_FOUND:
+      type: object
+      properties:
+        message:
+          type: string
+          description: The error message
+          example: Not found
+        code:
+          type: string
+          description: The error code
+          example: NOT_FOUND
+        issues:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+          description: An array of issues that were responsible for the error
+          example: []
+      required:
+        - message
+        - code
+      title: Not found error (404)
+      description: The error information
+      example:
+        code: NOT_FOUND
+        message: Not found
+        issues: []

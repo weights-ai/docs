@@ -1,0 +1,381 @@
+Learn how to create AI-generated songs from lyrics using the Weights API. This guide walks you through the process of transforming your lyrics into complete musical compositions.
+
+## Overview
+
+The Weights API provides powerful song generation capabilities that can turn your lyrics into full musical tracks. You provide the lyrics, and the AI creates the melody, instrumentation, and arrangement to bring your words to life.
+
+## Prerequisites
+
+- A Weights API account with an API key
+- Lyrics in English (up to 380 characters)
+- Basic knowledge of HTTP requests and JSON
+- The Weights SDK installed (optional but recommended)
+
+## Step 1: Set Up Your Environment
+
+First, install the Weights SDK and set up your authentication:
+
+```bash
+npm install @weights-ai/sdk
+```
+
+```javascript
+import Weights from "@weights-ai/sdk";
+
+const client = new Weights({
+  bearerToken: "your-api-key-here",
+});
+```
+
+## Step 2: Prepare Your Lyrics
+
+Before generating a song, you need to prepare your lyrics. The API accepts English lyrics up to 380 characters.
+
+### Lyrics Requirements
+
+- **Language**: English only
+- **Length**: Maximum 380 characters
+- **Content**: Can include verses, choruses, or complete songs
+- **Format**: Plain text (no special formatting needed)
+
+### Example Lyrics Preparation
+
+```javascript
+// Example: Prepare different types of lyrics
+const verseLyrics =
+  "In the moonlight, shadows dance, Whispering secrets of romance, Every step we take together, Makes this moment last forever";
+
+const chorusLyrics =
+  "Hold me close, don't let go, In your arms, I feel whole, Every heartbeat, every breath, You're my love, my life, my rest";
+
+const completeSong =
+  "Walking through the city lights, Feeling free on summer nights, Every moment, every day, You're the one who lights my way. Hold me close, don't let go, In your arms, I feel whole, Every heartbeat, every breath, You're my love, my life, my rest";
+
+console.log(`Verse length: ${verseLyrics.length} characters`);
+console.log(`Chorus length: ${chorusLyrics.length} characters`);
+console.log(`Complete song length: ${completeSong.length} characters`);
+```
+
+## Step 3: Create Your First Song
+
+Start by creating a song generation job:
+
+```javascript
+const songJob = await client.songs.create({
+  lyrics:
+    "In the moonlight, shadows dance, Whispering secrets of romance, Every step we take together, Makes this moment last forever",
+  section: "all",
+});
+
+console.log(`Song job created with ID: ${songJob.id}`);
+```
+
+### Request Parameters
+
+- **lyrics** (required): Your song lyrics in English (max 380 characters)
+- **section** (optional): Choose from `verse`, `chorus`, `guitar-stabs`, `all`, or `all_v2` (default: `all`)
+
+### Section Types
+
+- **verse**: Generate a verse section
+- **chorus**: Generate a chorus section
+- **guitar-stabs**: Generate guitar-focused instrumental sections
+- **all**: Generate a complete song with all sections
+- **all_v2**: Enhanced version with improved arrangement
+
+## Step 4: Monitor Song Generation
+
+Song generation is asynchronous and can take several minutes. Poll the status to track progress:
+
+```javascript
+async function checkSongStatus(jobId) {
+  const song = await client.songs.retrieve(jobId);
+
+  if (!song) {
+    console.log("Song not found or access denied");
+    return null;
+  }
+
+  console.log(`Status: ${song.status}`);
+  console.log(`Queue Position: ${song.queuePosition || "N/A"}`);
+  console.log(`Attempt: ${song.attempt}`);
+
+  switch (song.status) {
+    case "QUEUED":
+      console.log("Your song is waiting in the queue...");
+      break;
+    case "PROCESSING":
+      console.log("Your song is being generated...");
+      break;
+    case "SUCCEEDED":
+      console.log("Song generated successfully!");
+      console.log("Download URL:", song.outputUrl);
+      break;
+    case "ERRORED":
+      console.log("Song generation failed. Please try again.");
+      break;
+  }
+
+  return song;
+}
+
+// Check status every 30 seconds
+const song = await checkSongStatus(songJob.id);
+```
+
+### Job Statuses
+
+- **QUEUED**: Job is waiting in the processing queue
+- **PENDING_WORKER**: Job is assigned to a worker
+- **PROCESSING**: Song is being generated
+- **SUCCEEDED**: Generation completed successfully
+- **ERRORED**: Generation failed
+- **CANCELED**: Job was canceled
+
+## Step 5: Retrieve Your Generated Song
+
+Once the status is `SUCCEEDED`, your song is ready for download:
+
+```javascript
+if (song.status === "SUCCEEDED") {
+  console.log("Your song is ready!");
+  console.log("Download URL:", song.outputUrl);
+  console.log("Original Lyrics:", song.lyrics);
+  console.log(
+    "Generation Time:",
+    new Date(song.endTime) - new Date(song.startTime),
+    "ms"
+  );
+
+  // You can now download or stream the song
+  // The URL will be available for a limited time
+}
+```
+
+## Step 6: List All Your Songs
+
+View all your previous song generation jobs:
+
+```javascript
+const allSongs = await client.songs.list({
+  limit: 25,
+});
+
+console.log(`You have ${allSongs.songs.length} generated songs:`);
+
+allSongs.songs.forEach((song) => {
+  console.log(
+    `- ${song.id}: ${song.lyrics.substring(0, 50)}... (${song.status})`
+  );
+  if (song.status === "SUCCEEDED" && song.outputUrl) {
+    console.log(`  Download: ${song.outputUrl}`);
+  }
+});
+```
+
+## Advanced Song Generation
+
+### Different Section Types
+
+Experiment with various section types for different musical styles:
+
+```javascript
+// Generate a verse
+const verseSong = await client.songs.create({
+  lyrics: "Walking through the city lights, Feeling free on summer nights",
+  section: "verse",
+});
+
+// Generate a chorus
+const chorusSong = await client.songs.create({
+  lyrics: "Hold me close, don't let go, In your arms, I feel whole",
+  section: "chorus",
+});
+
+// Generate guitar-focused instrumental
+const guitarSong = await client.songs.create({
+  lyrics:
+    "Electric dreams and neon lights, Rock and roll through endless nights",
+  section: "guitar-stabs",
+});
+
+// Generate complete song with enhanced arrangement
+const enhancedSong = await client.songs.create({
+  lyrics: "Complete song lyrics here...",
+  section: "all_v2",
+});
+```
+
+### Search Your Songs
+
+You can search through your generated songs:
+
+```javascript
+const searchResults = await client.songs.list({
+  search: "moonlight",
+  limit: 10,
+});
+
+console.log(
+  `Found ${searchResults.songs.length} songs containing "moonlight":`
+);
+
+searchResults.songs.forEach((song) => {
+  console.log(`- ${song.lyrics}`);
+});
+```
+
+## Best Practices
+
+### Writing Effective Lyrics
+
+- **Rhythm and Flow**: Write lyrics with natural rhythm and flow
+- **Emotional Content**: Include emotional themes that work well with music
+- **Length**: Use the full 380 characters for more complete songs
+- **Structure**: Consider verse-chorus structure for better results
+- **Language**: Keep language clear and accessible
+
+### Section Selection
+
+- **Verse**: Good for storytelling and narrative content
+- **Chorus**: Best for memorable, repetitive phrases
+- **Guitar-stabs**: Ideal for rock and energetic content
+- **All**: Best for complete song experiences
+- **All_v2**: Enhanced version with better arrangement
+
+### Error Handling
+
+```javascript
+try {
+  const songJob = await client.songs.create({
+    lyrics: "Your lyrics here",
+  });
+} catch (error) {
+  if (error.code === "BAD_REQUEST") {
+    console.log("Invalid lyrics or parameters");
+  } else if (error.code === "UNAUTHORIZED") {
+    console.log("Please check your API key");
+  } else {
+    console.log("An error occurred:", error.message);
+  }
+}
+```
+
+## Complete Example
+
+Here's a complete example that creates a song and waits for completion:
+
+```javascript
+import Weights from "@weights-ai/sdk";
+
+const client = new Weights({
+  bearerToken: "your-api-key-here",
+});
+
+async function generateSong(lyrics, section = "all") {
+  try {
+    // Validate lyrics length
+    if (lyrics.length > 380) {
+      console.log("Lyrics too long. Maximum 380 characters allowed.");
+      return;
+    }
+
+    // Create the song generation job
+    console.log("Creating song generation job...");
+    const job = await client.songs.create({
+      lyrics: lyrics,
+      section: section,
+    });
+
+    console.log(`Job created with ID: ${job.id}`);
+
+    // Poll for completion
+    let completed = false;
+    while (!completed) {
+      await new Promise((resolve) => setTimeout(resolve, 30000)); // Wait 30 seconds
+
+      const status = await client.songs.retrieve(job.id);
+      console.log(`Status: ${status.status}`);
+
+      if (status.status === "SUCCEEDED") {
+        console.log("Song generated successfully!");
+        console.log("Download URL:", status.outputUrl);
+        console.log("Original Lyrics:", status.lyrics);
+        completed = true;
+      } else if (status.status === "ERRORED") {
+        console.log("Song generation failed");
+        completed = true;
+      }
+    }
+  } catch (error) {
+    console.error("Error:", error.message);
+  }
+}
+
+// Generate different types of songs
+generateSong(
+  "In the moonlight, shadows dance, Whispering secrets of romance, Every step we take together, Makes this moment last forever",
+  "all"
+);
+
+generateSong(
+  "Hold me close, don't let go, In your arms, I feel whole, Every heartbeat, every breath, You're my love, my life, my rest",
+  "chorus"
+);
+```
+
+## Use Cases
+
+### Music Creation
+
+- **Original Songs**: Create complete original compositions
+- **Songwriting**: Generate melodies for your lyrics
+- **Demo Creation**: Create quick demos for song ideas
+- **Background Music**: Generate instrumental tracks
+
+### Content Creation
+
+- **Podcasts**: Create theme songs and jingles
+- **Videos**: Generate background music for content
+- **Presentations**: Create custom music for slideshows
+- **Games**: Generate dynamic music for interactive content
+
+### Creative Projects
+
+- **Artistic Expression**: Explore new musical ideas
+- **Collaboration**: Combine AI-generated music with human creativity
+- **Learning**: Study different musical styles and arrangements
+- **Experimentation**: Test different lyrical approaches
+
+## Performance Considerations
+
+- **Processing Time**: Song generation typically takes 5-15 minutes
+- **Queue Position**: Jobs are processed in order
+- **File Size**: Generated songs are optimized for web delivery
+- **URL Expiration**: Download URLs have limited availability
+
+## Tips for Better Results
+
+### Lyrical Content
+
+- **Emotional Themes**: Love, hope, adventure, reflection work well
+- **Imagery**: Use vivid imagery that translates to musical emotion
+- **Rhythm**: Consider the natural rhythm of your words
+- **Repetition**: Include some repetition for memorable choruses
+
+### Musical Style
+
+- **Section Choice**: Different sections produce different musical styles
+- **Length**: Longer lyrics create more complete musical experiences
+- **Tone**: Match lyrical tone to musical style
+- **Structure**: Consider traditional song structures
+
+## Next Steps
+
+- Explore [RVC Voice Models](./rvc-voice-journey.mdx) to add vocals to your songs
+- Learn about [Image Generation](./image-generation-journey.mdx) for album artwork
+- Check out [Video Generation](./video-generation-journey.mdx) for music videos
+
+## API Reference
+
+For detailed API documentation, see the [API Reference](/api-reference) section.

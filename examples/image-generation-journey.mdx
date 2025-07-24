@@ -1,0 +1,239 @@
+Learn how to create stunning AI-generated images using the Weights API. This guide walks you through the complete process from creating an image generation job to retrieving your final results.
+
+## Overview
+
+The Weights API provides powerful image generation capabilities through the Flux.Dev engine. You can create images from text prompts, customize dimensions, and even use trained LoRA models for specific styles.
+
+## Prerequisites
+
+- A Weights API account with an API key
+- Basic knowledge of HTTP requests and JSON
+- The Weights SDK installed (optional but recommended)
+
+## Step 1: Set Up Your Environment
+
+First, install the Weights SDK and set up your authentication:
+
+```bash
+npm install @weights-ai/sdk
+```
+
+```javascript
+import Weights from "@weights-ai/sdk";
+
+const client = new Weights({
+  bearerToken: "your-api-key-here",
+});
+```
+
+## Step 2: Create Your First Image
+
+Start by creating a simple image generation job:
+
+```javascript
+const imageJob = await client.images.create({
+  prompt: "A serene mountain landscape at sunset with golden clouds",
+  dimensions: "LANDSCAPE",
+  numImages: 1,
+});
+
+console.log(`Image job created with ID: ${imageJob.id}`);
+console.log(`Status: ${imageJob.status}`);
+```
+
+### Request Parameters
+
+- **prompt** (required): Your text description of the image you want to generate
+- **dimensions** (optional): Choose from `SQUARE`, `PORTRAIT`, or `LANDSCAPE` (default: `SQUARE`)
+- **numImages** (optional): Number of images to generate (1-4, default: 1)
+- **styleId** (optional): ID of a custom style model
+- **secondStyleId** (optional): Secondary style model ID
+- **tertiaryStyleId** (optional): Tertiary style model ID
+
+## Step 3: Check Job Status
+
+Image generation is asynchronous. Poll the status to know when your image is ready:
+
+```javascript
+async function checkImageStatus(jobId) {
+  const job = await client.images.retrieve(jobId);
+
+  console.log(`Status: ${job.status}`);
+
+  switch (job.status) {
+    case "QUEUED":
+      console.log("Your job is waiting in the queue...");
+      break;
+    case "PROCESSING":
+      console.log("Your image is being generated...");
+      break;
+    case "SUCCEEDED":
+      console.log("Image generated successfully!");
+      console.log("Download URLs:", job.outputUrls);
+      break;
+    case "ERRORED":
+      console.log("Generation failed. Please try again.");
+      break;
+  }
+
+  return job;
+}
+
+// Check status every 10 seconds
+const job = await checkImageStatus(imageJob.id);
+```
+
+### Job Statuses
+
+- **QUEUED**: Job is waiting in the processing queue
+- **PENDING_WORKER**: Job is assigned to a worker
+- **PROCESSING**: Image is being generated
+- **SUCCEEDED**: Generation completed successfully
+- **ERRORED**: Generation failed
+- **CANCELED**: Job was canceled
+
+## Step 4: Retrieve Your Generated Images
+
+Once the status is `SUCCEEDED`, your images are ready:
+
+```javascript
+if (job.status === "SUCCEEDED") {
+  console.log("Your images are ready!");
+
+  job.outputUrls.forEach((url, index) => {
+    console.log(`Image ${index + 1}: ${url}`);
+  });
+}
+```
+
+## Step 5: List All Your Images
+
+View all your previous image generation jobs:
+
+```javascript
+const allImages = await client.images.list({
+  limit: 25,
+});
+
+console.log(`You have ${allImages.jobs.length} image jobs:`);
+
+allImages.jobs.forEach((job) => {
+  console.log(`- ${job.id}: ${job.prompt} (${job.status})`);
+  if (job.status === "SUCCEEDED" && job.outputUrls.length > 0) {
+    console.log(`  Download: ${job.outputUrls[0]}`);
+  }
+});
+```
+
+## Advanced Features
+
+### Using Custom LoRA Models
+
+You can use trained LoRA models for specific styles:
+
+```javascript
+const customImage = await client.images.create({
+  prompt: "A portrait of a woman in anime style",
+  styleId: "your-lora-model-id",
+  dimensions: "PORTRAIT",
+  numImages: 1,
+});
+```
+
+### Batch Generation
+
+Generate multiple images at once:
+
+```javascript
+const batchJob = await client.images.create({
+  prompt: "A futuristic city skyline at night",
+  numImages: 4,
+  dimensions: "LANDSCAPE",
+});
+```
+
+## Best Practices
+
+### Writing Effective Prompts
+
+- **Be specific**: "A majestic dragon with emerald scales flying over a medieval castle" vs "a dragon"
+- **Include style details**: "Oil painting style", "photorealistic", "anime style"
+- **Specify lighting**: "Golden hour lighting", "dramatic shadows"
+- **Mention composition**: "Close-up portrait", "wide landscape shot"
+
+### Error Handling
+
+```javascript
+try {
+  const imageJob = await client.images.create({
+    prompt: "Your prompt here",
+  });
+} catch (error) {
+  if (error.code === "BAD_REQUEST") {
+    console.log("Invalid prompt or parameters");
+  } else if (error.code === "UNAUTHORIZED") {
+    console.log("Please check your API key");
+  } else {
+    console.log("An error occurred:", error.message);
+  }
+}
+```
+
+## Complete Example
+
+Here's a complete example that creates an image and waits for completion:
+
+```javascript
+import Weights from "@weights-ai/sdk";
+
+const client = new Weights({
+  bearerToken: "your-api-key-here",
+});
+
+async function generateImage(prompt) {
+  try {
+    // Create the image generation job
+    console.log("Creating image generation job...");
+    const job = await client.images.create({
+      prompt: prompt,
+      dimensions: "LANDSCAPE",
+      numImages: 1,
+    });
+
+    console.log(`Job created with ID: ${job.id}`);
+
+    // Poll for completion
+    let completed = false;
+    while (!completed) {
+      await new Promise((resolve) => setTimeout(resolve, 10000)); // Wait 10 seconds
+
+      const status = await client.images.retrieve(job.id);
+      console.log(`Status: ${status.status}`);
+
+      if (status.status === "SUCCEEDED") {
+        console.log("Image generated successfully!");
+        console.log("Download URL:", status.outputUrls[0]);
+        completed = true;
+      } else if (status.status === "ERRORED") {
+        console.log("Generation failed");
+        completed = true;
+      }
+    }
+  } catch (error) {
+    console.error("Error:", error.message);
+  }
+}
+
+// Generate an image
+generateImage("A magical forest with glowing mushrooms and fairy lights");
+```
+
+## Next Steps
+
+- Explore [LoRA Model Training](./lora-training-journey.mdx) to create custom styles
+- Learn about [Video Generation](./video-generation-journey.mdx) for animated content
+- Check out [RVC Voice Models](./rvc-voice-journey.mdx) for voice synthesis
+
+## API Reference
+
+For detailed API documentation, see the [API Reference](/api-reference) section.

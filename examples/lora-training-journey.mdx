@@ -1,0 +1,370 @@
+Learn how to train custom LoRA (Low-Rank Adaptation) models using the Weights API. This guide walks you through creating personalized AI models that can generate images in your specific style or concept.
+
+## Overview
+
+LoRA models allow you to fine-tune AI image generation to your specific needs. You can train models on your own images to create consistent styles, characters, or concepts that can be used in image generation.
+
+## Prerequisites
+
+- A Weights API account with an API key
+- 5-30 high-quality images for training
+- Images uploaded to web-accessible URLs
+- Basic knowledge of HTTP requests and JSON
+- The Weights SDK installed (optional but recommended)
+
+## Step 1: Set Up Your Environment
+
+First, install the Weights SDK and set up your authentication:
+
+```bash
+npm install @weights-ai/sdk
+```
+
+```javascript
+import Weights from "@weights-ai/sdk";
+
+const client = new Weights({
+  bearerToken: "your-api-key-here",
+});
+```
+
+## Step 2: Prepare Your Training Images
+
+Before training a LoRA model, you need to prepare and upload your training images.
+
+### Image Requirements
+
+- **Quantity**: 5-30 images (more images generally produce better results)
+- **Quality**: High-resolution, clear images
+- **Consistency**: Images should represent the same concept or style
+- **Format**: Common formats (JPEG, PNG, WebP)
+- **Accessibility**: Must be accessible via HTTP/HTTPS URLs
+
+### Example Image Preparation
+
+```javascript
+// Example: Prepare training images
+const trainingImages = [
+  {
+    url: "https://example.com/image1.jpg",
+    description: "Portrait of a woman with red hair",
+  },
+  {
+    url: "https://example.com/image2.jpg",
+    description: "Close-up of the same woman smiling",
+  },
+  {
+    url: "https://example.com/image3.jpg",
+    description: "Woman in different lighting",
+  },
+  // ... more images
+];
+
+console.log(`Prepared ${trainingImages.length} training images`);
+```
+
+## Step 3: Create Your LoRA Model
+
+Start the training process by creating a LoRA model:
+
+```javascript
+const loraModel = await client.imageLoraModels.create({
+  name: "My Custom Style",
+  images: trainingImages,
+  isPublic: true,
+  triggerWord: "my_style",
+  validationPrompt: "A portrait in my custom style",
+});
+
+console.log(`LoRA model created with ID: ${loraModel.id}`);
+console.log(`Training job ID: ${loraModel.trainingJobId}`);
+```
+
+### Request Parameters
+
+- **name** (required): Name for your LoRA model
+- **images** (required): Array of image objects with URLs and descriptions
+- **isPublic** (optional): Whether to make the model public (default: true)
+- **triggerWord** (optional): Custom trigger word to activate the style
+- **validationPrompt** (optional): Prompt to test the model during training
+
+## Step 4: Monitor Training Progress
+
+LoRA training is asynchronous and can take several hours. Poll the status to track progress:
+
+```javascript
+async function checkTrainingStatus(modelId) {
+  const status = await client.imageLoraModels.retrieveStatus(modelId);
+
+  if (!status) {
+    console.log("Model not found or access denied");
+    return null;
+  }
+
+  console.log(`Status: ${status.status}`);
+  console.log(`Queue Position: ${status.queuePosition || "N/A"}`);
+  console.log(`Status Text: ${status.shortStatusText || "N/A"}`);
+
+  switch (status.status) {
+    case "QUEUED":
+      console.log("Your model is waiting in the training queue...");
+      break;
+    case "PROCESSING":
+      console.log("Your model is being trained...");
+      break;
+    case "SUCCEEDED":
+      console.log("Training completed successfully!");
+      break;
+    case "ERRORED":
+      console.log("Training failed. Please check your images and try again.");
+      break;
+  }
+
+  return status;
+}
+
+// Check status every 5 minutes
+const status = await checkTrainingStatus(loraModel.id);
+```
+
+### Training Statuses
+
+- **QUEUED**: Model is waiting in the training queue
+- **PENDING_WORKER**: Model is assigned to a training worker
+- **PROCESSING**: Model is being trained
+- **SUCCEEDED**: Training completed successfully
+- **ERRORED**: Training failed
+- **CANCELED**: Training was canceled
+
+## Step 5: Retrieve Your Trained Model
+
+Once training is complete, you can retrieve your model details:
+
+```javascript
+const model = await client.imageLoraModels.retrieve(loraModel.id);
+
+if (model) {
+  console.log(`Model: ${model.name}`);
+  console.log(`Triggers: ${model.triggers.join(", ")}`);
+  console.log(`Public: ${model.isPublic}`);
+  console.log(`Created: ${model.createdAt}`);
+
+  if (model.trainingJob && model.trainingJob.status === "SUCCEEDED") {
+    console.log("Model is ready to use!");
+  }
+}
+```
+
+## Step 6: Use Your Trained Model
+
+Once training is complete, you can use your LoRA model in image generation:
+
+```javascript
+// Generate an image using your custom LoRA model
+const imageWithLora = await client.images.create({
+  prompt: "A portrait of a woman in my_style",
+  styleId: loraModel.id,
+  dimensions: "PORTRAIT",
+  numImages: 1,
+});
+
+console.log(`Image generated with custom LoRA: ${imageWithLora.id}`);
+```
+
+## Step 7: List and Manage Your Models
+
+View all your trained LoRA models:
+
+```javascript
+const myModels = await client.imageLoraModels.list({
+  limit: 25,
+});
+
+console.log(`You have ${myModels.models.length} LoRA models:`);
+
+myModels.models.forEach((model) => {
+  console.log(`- ${model.name} (${model.id})`);
+  console.log(`  Status: ${model.trainingJob?.status || "Unknown"}`);
+  console.log(`  Public: ${model.isPublic}`);
+  console.log(`  Triggers: ${model.triggers.join(", ")}`);
+});
+```
+
+## Advanced Features
+
+### Search Public Models
+
+You can also search and use public LoRA models created by other users:
+
+```javascript
+const publicModels = await client.imageLoraModels.search({
+  search: "anime style",
+  limit: 10,
+});
+
+console.log(`Found ${publicModels.models.length} public models:`);
+
+publicModels.models.forEach((model) => {
+  console.log(`- ${model.name} by ${model.userId}`);
+  console.log(`  Triggers: ${model.triggers.join(", ")}`);
+});
+```
+
+### Download Trained Models
+
+For advanced users, you can download your trained LoRA model files:
+
+```javascript
+const downloadInfo = await client.imageLoraModels.retrieveDownloadURL(
+  loraModel.id
+);
+
+if (downloadInfo.downloadUrl) {
+  console.log("Download URL:", downloadInfo.downloadUrl);
+  // The URL expires in 5 minutes
+} else {
+  console.log("Model not ready for download or access denied");
+}
+```
+
+## Best Practices
+
+### Image Selection for Training
+
+- **Consistency**: All images should represent the same concept or style
+- **Quality**: Use high-resolution, clear images
+- **Variety**: Include different angles, lighting, and compositions
+- **Quantity**: 10-20 images often produce good results
+- **Relevance**: Images should be directly related to your desired output
+
+### Naming and Organization
+
+- **Descriptive names**: Use clear, descriptive names for your models
+- **Trigger words**: Choose memorable trigger words that relate to your style
+- **Documentation**: Keep notes on what each model was trained on
+
+### Training Tips
+
+```javascript
+// Example: Training a character model
+const characterModel = await client.imageLoraModels.create({
+  name: "My OC Character - Luna",
+  images: characterImages,
+  triggerWord: "luna_character",
+  validationPrompt: "A portrait of Luna in different styles",
+  isPublic: false, // Keep personal characters private
+});
+
+// Example: Training a style model
+const styleModel = await client.imageLoraModels.create({
+  name: "Cyberpunk Art Style",
+  images: cyberpunkStyleImages,
+  triggerWord: "cyberpunk_style",
+  validationPrompt: "A landscape in cyberpunk style",
+  isPublic: true, // Share artistic styles
+});
+```
+
+## Complete Example
+
+Here's a complete example that trains a LoRA model and uses it:
+
+```javascript
+import Weights from "@weights-ai/sdk";
+
+const client = new Weights({
+  bearerToken: "your-api-key-here",
+});
+
+async function trainAndUseLora() {
+  try {
+    // Prepare training images
+    const trainingImages = [
+      { url: "https://example.com/img1.jpg", description: "Portrait 1" },
+      { url: "https://example.com/img2.jpg", description: "Portrait 2" },
+      { url: "https://example.com/img3.jpg", description: "Portrait 3" },
+      { url: "https://example.com/img4.jpg", description: "Portrait 4" },
+      { url: "https://example.com/img5.jpg", description: "Portrait 5" },
+    ];
+
+    // Create LoRA model
+    console.log("Creating LoRA model...");
+    const loraModel = await client.imageLoraModels.create({
+      name: "My Portrait Style",
+      images: trainingImages,
+      triggerWord: "my_portrait",
+      isPublic: true,
+    });
+
+    console.log(`Model created with ID: ${loraModel.id}`);
+
+    // Wait for training to complete
+    let trainingComplete = false;
+    while (!trainingComplete) {
+      await new Promise((resolve) => setTimeout(resolve, 300000)); // Wait 5 minutes
+
+      const status = await client.imageLoraModels.retrieveStatus(loraModel.id);
+      console.log(`Training status: ${status.status}`);
+
+      if (status.status === "SUCCEEDED") {
+        console.log("Training completed!");
+        trainingComplete = true;
+      } else if (status.status === "ERRORED") {
+        console.log("Training failed");
+        return;
+      }
+    }
+
+    // Use the trained model
+    console.log("Generating image with trained model...");
+    const image = await client.images.create({
+      prompt: "A beautiful portrait in my_portrait style",
+      styleId: loraModel.id,
+      dimensions: "PORTRAIT",
+    });
+
+    console.log(`Image generated: ${image.id}`);
+  } catch (error) {
+    console.error("Error:", error.message);
+  }
+}
+
+trainAndUseLora();
+```
+
+## Use Cases
+
+### Character Creation
+
+- **Original Characters**: Train models on your OC designs
+- **Consistent Portraits**: Create consistent character appearances
+- **Style Transfer**: Apply your character to different art styles
+
+### Artistic Styles
+
+- **Artistic Movements**: Train on specific art styles (impressionism, cubism, etc.)
+- **Photography Styles**: Replicate specific photography techniques
+- **Digital Art Styles**: Create consistent digital art aesthetics
+
+### Concept Training
+
+- **Objects**: Train models on specific objects or items
+- **Environments**: Create consistent environmental styles
+- **Abstract Concepts**: Train on abstract or conceptual imagery
+
+## Performance Considerations
+
+- **Training Time**: LoRA training typically takes 2-6 hours
+- **Queue Position**: Training jobs are processed in order
+- **Model Size**: Trained models are optimized for efficient use
+- **Storage**: Models are stored securely on Weights servers
+
+## Next Steps
+
+- Explore [Image Generation](./image-generation-journey.mdx) to use your trained models
+- Learn about [RVC Voice Models](./rvc-voice-journey.mdx) for voice synthesis
+- Check out [Song Generation](./song-generation-journey.mdx) for audio content
+
+## API Reference
+
+For detailed API documentation, see the [API Reference](/api-reference) section.
