@@ -143,7 +143,6 @@ const model = await client.imageLoraModels.retrieve(loraModel.id);
 if (model) {
   console.log(`Model: ${model.name}`);
   console.log(`Triggers: ${model.triggers.join(", ")}`);
-  console.log(`Public: ${model.isPublic}`);
   console.log(`Created: ${model.createdAt}`);
 
   if (model.trainingJob && model.trainingJob.status === "SUCCEEDED") {
@@ -369,18 +368,14 @@ const allDownloads = await downloadAllMyModels();
 const characterModel = await client.imageLoraModels.create({
   name: "My OC Character - Luna",
   images: characterImages,
-  triggerWord: "luna_character",
-  validationPrompt: "A portrait of Luna in different styles",
-  isPublic: false, // Keep personal characters private
+  triggerWord: "luna_character"
 });
 
 // Example: Training a style model
 const styleModel = await client.imageLoraModels.create({
   name: "Cyberpunk Art Style",
   images: cyberpunkStyleImages,
-  triggerWord: "cyberpunk_style",
-  validationPrompt: "A landscape in cyberpunk style",
-  isPublic: true, // Share artistic styles
+  triggerWord: "cyberpunk_style"
 });
 ```
 
@@ -411,8 +406,7 @@ async function trainAndUseLora() {
     const loraModel = await client.imageLoraModels.create({
       name: "My Portrait Style",
       images: trainingImages,
-      triggerWord: "my_portrait",
-      isPublic: true,
+      triggerWord: "my_portrait"
     });
 
     console.log(`Model created with ID: ${loraModel.id}`);

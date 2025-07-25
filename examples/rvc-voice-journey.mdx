@@ -75,7 +75,6 @@ const rvcModel = await client.rvcModels.training.create({
   name: "My Custom Voice",
   description: "A voice model trained on my singing samples",
   audioFiles: trainingAudioFiles,
-  isPublic: true,
   runKaraoke: true,
   runDeEchoDeReverb: false,
 });
@@ -89,7 +88,6 @@ console.log(`Training job ID: ${rvcModel.id}`);
 - **name** (required): Name for your RVC model
 - **audioFiles** (required): Array of audio file objects with URLs, names, and lengths
 - **description** (optional): Description of the model
-- **isPublic** (optional): Whether to make the model public (default: true)
 - **runKaraoke** (optional): Extract vocals from music (default: false)
 - **runDeEchoDeReverb** (optional): Remove echo and reverb (default: false)
 
@@ -153,7 +151,6 @@ const model = await client.rvcModels.training.retrieve(rvcModel.id);
 if (model) {
   console.log(`Model: ${model.name}`);
   console.log(`Description: ${model.description || "N/A"}`);
-  console.log(`Public: ${model.isPublic}`);
   console.log(`Created: ${model.createdAt}`);
   console.log(`Audio Files: ${model.audioFiles.length}`);
 
@@ -247,7 +244,6 @@ myModels.items.forEach((item) => {
   console.log(`- ${item.name} (${item.id})`);
   console.log(`  Type: ${item.type}`);
   console.log(`  Status: ${item.status || "N/A"}`);
-  console.log(`  Public: ${item.isPublic}`);
 });
 ```
 
@@ -326,7 +322,6 @@ const singingModel = await client.rvcModels.training.create({
   description: "Trained on my singing samples",
   audioFiles: singingSamples,
   runKaraoke: true, // Extract vocals from music
-  isPublic: false, // Keep personal voice private
 });
 
 // Example: Training a speaking voice model
@@ -335,7 +330,6 @@ const speakingModel = await client.rvcModels.training.create({
   description: "Trained on my speech samples",
   audioFiles: speechSamples,
   runKaraoke: false, // No need for vocal extraction
-  isPublic: true, // Share for others to use
 });
 ```
 
@@ -377,7 +371,6 @@ async function trainAndCreateCover() {
       name: "My Voice Model",
       audioFiles: trainingAudio,
       runKaraoke: true,
-      isPublic: true,
     });
 
     console.log(`Model created with ID: ${rvcModel.id}`);
