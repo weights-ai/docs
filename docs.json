@@ -20,7 +20,7 @@
         "groups": [
           {
             "group": "Getting started",
-            "pages": ["index"]
+            "pages": ["index", "quickstart"]
           },
           {
             "group": "Examples",

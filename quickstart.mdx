@@ -1,0 +1,68 @@
+---
+title: "Quickstart"
+description: "Get started with the Weights API in minutes"
+---
+
+## Install the Weights SDK
+
+Install the Weights SDK using npm:
+
+```bash
+npm install @weights-ai/sdk
+```
+
+## Initialize the client
+
+```javascript
+import { Weights } from '@weights-ai/sdk';
+
+const weights = new Weights({
+  bearerToken: 'your-api-key-here',
+});
+```
+
+## Get your API key
+
+If you don't have an API key yet, [sign up at weights.com](https://www.weights.com/weights-api) to get started.
+
+## Ready to explore?
+
+Choose a journey to learn how to use the Weights API:
+
+<Columns cols={2}>
+  <Card
+    title="Image Generation"
+    icon="image"
+    href="/examples/image-generation-journey"
+  >
+    Create stunning AI-generated images from text prompts.
+  </Card>
+  <Card
+    title="Video Generation"
+    icon="video"
+    href="/examples/video-generation-journey"
+  >
+    Transform static images into dynamic video content.
+  </Card>
+  <Card
+    title="LoRA Training"
+    icon="brain"
+    href="/examples/lora-training-journey"
+  >
+    Train custom AI models on your own images.
+  </Card>
+  <Card
+    title="Voice Models & Covers"
+    icon="microphone"
+    href="/examples/rvc-voice-journey"
+  >
+    Create AI voice models and generate voice covers.
+  </Card>
+  <Card
+    title="Song Generation"
+    icon="music"
+    href="/examples/song-generation-journey"
+  >
+    Transform lyrics into complete musical compositions.
+  </Card>
+</Columns> 
