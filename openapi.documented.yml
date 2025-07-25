@@ -636,9 +636,6 @@ paths:
                       - url
                   minItems: 5
                   maxItems: 30
-                isPublic:
-                  type: boolean
-                  default: true
                 triggerWord:
                   type: string
                 validationPrompt:
@@ -795,10 +792,6 @@ paths:
                     type: boolean
                   isDeleted:
                     type: boolean
-                  isUnlisted:
-                    type: boolean
-                  isPublic:
-                    type: boolean
                   createdAt:
                     type: string
                   userId:
@@ -837,8 +830,6 @@ paths:
                   - triggers
                   - isNSFW
                   - isDeleted
-                  - isUnlisted
-                  - isPublic
                   - createdAt
                   - userId
         '400':
@@ -1086,10 +1077,6 @@ paths:
                           type: boolean
                         isDeleted:
                           type: boolean
-                        isUnlisted:
-                          type: boolean
-                        isPublic:
-                          type: boolean
                         createdAt:
                           type: string
                         userId:
@@ -1128,8 +1115,6 @@ paths:
                         - triggers
                         - isNSFW
                         - isDeleted
-                        - isUnlisted
-                        - isPublic
                         - createdAt
                         - userId
                 required:
@@ -1265,10 +1250,6 @@ paths:
                           type: boolean
                         isDeleted:
                           type: boolean
-                        isUnlisted:
-                          type: boolean
-                        isPublic:
-                          type: boolean
                         createdAt:
                           type: string
                         userId:
@@ -1307,8 +1288,6 @@ paths:
                         - triggers
                         - isNSFW
                         - isDeleted
-                        - isUnlisted
-                        - isPublic
                         - createdAt
                         - userId
                 required:
@@ -1439,6 +1418,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
+      x-stainless-snippets:
+        typescript: |-
+          import Weights from '@weights-ai/sdk';
+
+          const client = new Weights({
+            bearerToken: 'My Bearer Token',
+          });
+
+          const response = await client.imageLoraModels.retrieveDownloadURL('id');
+
+          console.log(response.downloadUrl);
+      x-readme:
+        code-samples:
+          - language: node
+            code: |-
+              import Weights from '@weights-ai/sdk';
+
+              const client = new Weights({
+                bearerToken: 'My Bearer Token',
+              });
+
+              const response = await client.imageLoraModels.retrieveDownloadURL('id');
+
+              console.log(response.downloadUrl);
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Weights from '@weights-ai/sdk';
+
+            const client = new Weights({
+              bearerToken: 'My Bearer Token',
+            });
+
+            const response = await client.imageLoraModels.retrieveDownloadURL('id');
+
+            console.log(response.downloadUrl);
   /covers:
     get:
       operationId: external-getCovers
@@ -2024,23 +2039,13 @@ paths:
                       url:
                         type: string
                         format: uri
-                      name:
-                        type: string
-                        minLength: 1
-                        maxLength: 200
-                      length:
-                        type: integer
-                        minimum: 0
-                        exclusiveMinimum: true
+                      isPreStemmed:
+                        type: boolean
+                        default: false
                     required:
                       - url
-                      - name
-                      - length
                   minItems: 1
                   maxItems: 50
-                isPublic:
-                  type: boolean
-                  default: true
                 runKaraoke:
                   type: boolean
                   default: false
@@ -2092,17 +2097,11 @@ paths:
                   endTime:
                     type: string
                     nullable: true
-                  isPublic:
-                    type: boolean
-                  version:
-                    type: number
                   attempt:
                     type: number
                   initialQueuePosition:
                     type: number
                     nullable: true
-                  isPremiumJob:
-                    type: boolean
                   runKaraoke:
                     type: boolean
                   runDeEchoDeReverb:
@@ -2118,21 +2117,9 @@ paths:
                         type: string
                       title:
                         type: string
-                      simplifiedTitle:
-                        type: string
-                      isDeleted:
-                        type: boolean
-                      isPublic:
-                        type: boolean
-                      isModRemoved:
-                        type: boolean
                     required:
                       - id
                       - title
-                      - simplifiedTitle
-                      - isDeleted
-                      - isPublic
-                      - isModRemoved
                   audioFiles:
                     type: array
                     items:
@@ -2140,27 +2127,15 @@ paths:
                       properties:
                         id:
                           type: string
-                        name:
-                          type: string
                         url:
                           type: string
-                        length:
-                          type: number
-                        isYoutube:
-                          type: boolean
-                        youtubeUrl:
-                          type: string
-                          nullable: true
                         isPreStemmed:
                           type: boolean
                         createdAt:
                           type: string
                       required:
                         - id
-                        - name
                         - url
-                        - length
-                        - isYoutube
                         - isPreStemmed
                         - createdAt
                   queuePosition:
@@ -2171,10 +2146,7 @@ paths:
                   - name
                   - createdAt
                   - updatedAt
-                  - isPublic
-                  - version
                   - attempt
-                  - isPremiumJob
                   - runKaraoke
                   - runDeEchoDeReverb
                   - audioFiles
@@ -2211,7 +2183,7 @@ paths:
           });
 
           const training = await client.rvcModels.training.create({
-            audioFiles: [{ length: 1, name: 'x', url: 'https://example.com' }],
+            audioFiles: [{ url: 'https://example.com' }],
             name: 'x',
           });
 
@@ -2227,7 +2199,7 @@ paths:
               });
 
               const training = await client.rvcModels.training.create({
-                audioFiles: [{ length: 1, name: 'x', url: 'https://example.com' }],
+                audioFiles: [{ url: 'https://example.com' }],
                 name: 'x',
               });
 
@@ -2242,7 +2214,7 @@ paths:
             });
 
             const training = await client.rvcModels.training.create({
-              audioFiles: [{ length: 1, name: 'x', url: 'https://example.com' }],
+              audioFiles: [{ url: 'https://example.com' }],
               name: 'x',
             });
 
@@ -2314,17 +2286,12 @@ paths:
                           type: string
                         updatedAt:
                           type: string
-                        isPublic:
-                          type: boolean
                         type:
                           type: string
                           enum:
                             - uploaded
                             - training
                         title:
-                          type: string
-                          nullable: true
-                        simplifiedTitle:
                           type: string
                           nullable: true
                         url:
@@ -2341,12 +2308,6 @@ paths:
                           nullable: true
                         attempt:
                           type: number
-                          nullable: true
-                        initialQueuePosition:
-                          type: number
-                          nullable: true
-                        isPremiumJob:
-                          type: boolean
                           nullable: true
                         runKaraoke:
                           type: boolean
@@ -2365,21 +2326,9 @@ paths:
                               type: string
                             title:
                               type: string
-                            simplifiedTitle:
-                              type: string
-                            isDeleted:
-                              type: boolean
-                            isPublic:
-                              type: boolean
-                            isModRemoved:
-                              type: boolean
                           required:
                             - id
                             - title
-                            - simplifiedTitle
-                            - isDeleted
-                            - isPublic
-                            - isModRemoved
                         audioFiles:
                           type: array
                           nullable: true
@@ -2388,27 +2337,15 @@ paths:
                             properties:
                               id:
                                 type: string
-                              name:
-                                type: string
                               url:
                                 type: string
-                              length:
-                                type: number
-                              isYoutube:
-                                type: boolean
-                              youtubeUrl:
-                                type: string
-                                nullable: true
                               isPreStemmed:
                                 type: boolean
                               createdAt:
                                 type: string
                             required:
                               - id
-                              - name
                               - url
-                              - length
-                              - isYoutube
                               - isPreStemmed
                               - createdAt
                         queuePosition:
@@ -2419,7 +2356,6 @@ paths:
                         - name
                         - createdAt
                         - updatedAt
-                        - isPublic
                         - type
                 required:
                   - items
@@ -2651,17 +2587,11 @@ paths:
                   endTime:
                     type: string
                     nullable: true
-                  isPublic:
-                    type: boolean
-                  version:
-                    type: number
                   attempt:
                     type: number
                   initialQueuePosition:
                     type: number
                     nullable: true
-                  isPremiumJob:
-                    type: boolean
                   runKaraoke:
                     type: boolean
                   runDeEchoDeReverb:
@@ -2677,21 +2607,9 @@ paths:
                         type: string
                       title:
                         type: string
-                      simplifiedTitle:
-                        type: string
-                      isDeleted:
-                        type: boolean
-                      isPublic:
-                        type: boolean
-                      isModRemoved:
-                        type: boolean
                     required:
                       - id
                       - title
-                      - simplifiedTitle
-                      - isDeleted
-                      - isPublic
-                      - isModRemoved
                   audioFiles:
                     type: array
                     items:
@@ -2699,27 +2617,15 @@ paths:
                       properties:
                         id:
                           type: string
-                        name:
-                          type: string
                         url:
                           type: string
-                        length:
-                          type: number
-                        isYoutube:
-                          type: boolean
-                        youtubeUrl:
-                          type: string
-                          nullable: true
                         isPreStemmed:
                           type: boolean
                         createdAt:
                           type: string
                       required:
                         - id
-                        - name
                         - url
-                        - length
-                        - isYoutube
                         - isPreStemmed
                         - createdAt
                   queuePosition:
@@ -2730,10 +2636,7 @@ paths:
                   - name
                   - createdAt
                   - updatedAt
-                  - isPublic
-                  - version
                   - attempt
-                  - isPremiumJob
                   - runKaraoke
                   - runDeEchoDeReverb
                   - audioFiles
