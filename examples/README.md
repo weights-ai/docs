@@ -4,7 +4,7 @@ This directory contains comprehensive user journey guides for the Weights API, d
 
 ## Available Examples
 
-### 1. [Image Generation Journey](./image-generation-journey.mdx)
+### 1. [Image Generation Journey](./image-generation.mdx)
 Learn how to create stunning AI-generated images from text prompts. This guide covers:
 - Setting up the Weights SDK
 - Creating image generation jobs
@@ -13,7 +13,7 @@ Learn how to create stunning AI-generated images from text prompts. This guide c
 - Best practices for writing effective prompts
 - Complete working examples
 
-### 2. [Video Generation Journey](./video-generation-journey.mdx)
+### 2. [Video Generation Journey](./video-generation.mdx)
 Transform static images into dynamic video content. This guide covers:
 - Preparing input images for video generation
 - Creating video generation jobs with motion prompts
@@ -22,7 +22,7 @@ Transform static images into dynamic video content. This guide covers:
 - Best practices for motion prompts and image selection
 - Complete working examples
 
-### 3. [LoRA Model Training Journey](./lora-training-journey.mdx)
+### 3. [LoRA Model Training Journey](./lora-training.mdx)
 Train custom AI models on your own images for consistent styles. This guide covers:
 - Preparing training images (5-30 images required)
 - Creating and monitoring LoRA training jobs
@@ -31,7 +31,7 @@ Train custom AI models on your own images for consistent styles. This guide cove
 - Best practices for image selection and training
 - Complete end-to-end examples
 
-### 4. [RVC Voice Models & Covers Journey](./rvc-voice-journey.mdx)
+### 4. [RVC Voice Models & Covers Journey](./rvc-voice.mdx)
 Create AI voice models and generate voice covers. This guide covers:
 - Preparing training audio files (1-50 files, 10+ seconds each)
 - Training custom RVC voice models
@@ -40,7 +40,7 @@ Create AI voice models and generate voice covers. This guide covers:
 - Best practices for audio quality and model training
 - Complete working examples
 
-### 5. [Song Generation Journey](./song-generation-journey.mdx)
+### 5. [Song Generation Journey](./song-generation.mdx)
 Transform lyrics into complete musical compositions. This guide covers:
 - Writing effective lyrics (up to 380 characters)
 - Creating songs with different section types (verse, chorus, guitar-stabs, all)

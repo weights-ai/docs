@@ -25,11 +25,11 @@
           {
             "group": "Examples",
             "pages": [
-              "examples/image-generation-journey",
-              "examples/video-generation-journey",
-              "examples/lora-training-journey",
-              "examples/rvc-voice-journey",
-              "examples/song-generation-journey"
+              "examples/image-generation",
+              "examples/video-generation",
+              "examples/lora-training",
+              "examples/rvc-voice",
+              "examples/song-generation"
             ]
           },
           {
