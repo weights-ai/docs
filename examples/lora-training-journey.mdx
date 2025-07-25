@@ -1,4 +1,4 @@
-Learn how to train custom LoRA (Low-Rank Adaptation) models using the Weights API. This guide walks you through creating personalized AI models that can generate images in your specific style or concept.
+Learn how to train custom Flux.Dev LoRA (Low-Rank Adaptation) models using the Weights API. This guide walks you through creating personalized AI models that can generate images in your specific style or concept.
 
 ## Overview
 
@@ -9,8 +9,7 @@ LoRA models allow you to fine-tune AI image generation to your specific needs. Y
 - A Weights API account with an API key
 - 5-30 high-quality images for training
 - Images uploaded to web-accessible URLs
-- Basic knowledge of HTTP requests and JSON
-- The Weights SDK installed (optional but recommended)
+
 
 ## Step 1: Set Up Your Environment
 
@@ -71,7 +70,6 @@ Start the training process by creating a LoRA model:
 const loraModel = await client.imageLoraModels.create({
   name: "My Custom Style",
   images: trainingImages,
-  isPublic: true,
   triggerWord: "my_style",
   validationPrompt: "A portrait in my custom style",
 });
@@ -84,7 +82,6 @@ console.log(`Training job ID: ${loraModel.trainingJobId}`);
 
 - **name** (required): Name for your LoRA model
 - **images** (required): Array of image objects with URLs and descriptions
-- **isPublic** (optional): Whether to make the model public (default: true)
 - **triggerWord** (optional): Custom trigger word to activate the style
 - **validationPrompt** (optional): Prompt to test the model during training
 
@@ -185,7 +182,6 @@ console.log(`You have ${myModels.models.length} LoRA models:`);
 myModels.models.forEach((model) => {
   console.log(`- ${model.name} (${model.id})`);
   console.log(`  Status: ${model.trainingJob?.status || "Unknown"}`);
-  console.log(`  Public: ${model.isPublic}`);
   console.log(`  Triggers: ${model.triggers.join(", ")}`);
 });
 ```
@@ -212,19 +208,142 @@ publicModels.models.forEach((model) => {
 
 ### Download Trained Models
 
-For advanced users, you can download your trained LoRA model files:
+For advanced users, you can download your trained LoRA model files. This is useful for:
+- Using models in other applications
+- Backing up your trained models
+- Sharing models with other users
+- Local development and testing
 
 ```javascript
+// Get a download URL for your trained LoRA model
 const downloadInfo = await client.imageLoraModels.retrieveDownloadURL(
   loraModel.id
 );
 
 if (downloadInfo.downloadUrl) {
   console.log("Download URL:", downloadInfo.downloadUrl);
-  // The URL expires in 5 minutes
+  console.log("⚠️  URL expires in 5 minutes - download quickly!");
+  
+  // You can now download the model file
+  // The URL provides direct access to the model file
 } else {
   console.log("Model not ready for download or access denied");
+  console.log("Make sure the model training has completed successfully");
 }
+```
+
+#### Download with Error Handling
+
+Here's a more robust example with proper error handling:
+
+```javascript
+async function downloadLoraModel(modelId) {
+  try {
+    // First, check if the model is ready
+    const model = await client.imageLoraModels.retrieve(modelId);
+    
+    if (!model) {
+      console.log("Model not found or access denied");
+      return null;
+    }
+    
+    if (model.trainingJob?.status !== 'SUCCEEDED') {
+      console.log("Model training not completed yet");
+      console.log(`Current status: ${model.trainingJob?.status}`);
+      return null;
+    }
+    
+    // Get the download URL
+    const downloadInfo = await client.imageLoraModels.retrieveDownloadURL(modelId);
+    
+    if (downloadInfo.downloadUrl) {
+      console.log("✅ Download URL obtained successfully!");
+      console.log("📁 Model file ready for download");
+      console.log("⏰ URL expires in 5 minutes");
+      console.log("🔗 URL:", downloadInfo.downloadUrl);
+      
+      return downloadInfo.downloadUrl;
+    } else {
+      console.log("❌ Failed to get download URL");
+      return null;
+    }
+    
+  } catch (error) {
+    if (error.code === 'UNAUTHORIZED') {
+      console.log("❌ Authentication failed - check your API key");
+    } else if (error.code === 'FORBIDDEN') {
+      console.log("❌ Access denied - model may not belong to you");
+    } else if (error.code === 'NOT_FOUND') {
+      console.log("❌ Model not found");
+    } else {
+      console.log("❌ Error downloading model:", error.message);
+    }
+    return null;
+  }
+}
+
+// Usage example
+const downloadUrl = await downloadLoraModel(loraModel.id);
+if (downloadUrl) {
+  // Use the download URL to fetch the model file
+  // You can use fetch(), axios, or any HTTP client
+  console.log("Ready to download model file from:", downloadUrl);
+}
+```
+
+#### Download Multiple Models
+
+You can also download multiple models at once:
+
+```javascript
+async function downloadAllMyModels() {
+  try {
+    // Get all your models
+    const myModels = await client.imageLoraModels.list({
+      limit: 50
+    });
+    
+    console.log(`Found ${myModels.models.length} models`);
+    
+    const downloadUrls = [];
+    
+    for (const model of myModels.models) {
+      // Only download successfully trained models
+      if (model.trainingJob?.status === 'SUCCEEDED') {
+        console.log(`Getting download URL for: ${model.name}`);
+        
+        const downloadInfo = await client.imageLoraModels.retrieveDownloadURL(model.id);
+        
+        if (downloadInfo.downloadUrl) {
+          downloadUrls.push({
+            name: model.name,
+            id: model.id,
+            downloadUrl: downloadInfo.downloadUrl
+          });
+          
+          console.log(`✅ ${model.name}: ${downloadInfo.downloadUrl}`);
+        }
+      }
+    }
+    
+    console.log(`\n📋 Download Summary:`);
+    console.log(`Total models ready for download: ${downloadUrls.length}`);
+    
+    downloadUrls.forEach((item, index) => {
+      console.log(`${index + 1}. ${item.name} (${item.id})`);
+      console.log(`   URL: ${item.downloadUrl}`);
+    });
+    
+    return downloadUrls;
+    
+  } catch (error) {
+    console.error("Error downloading models:", error.message);
+    return [];
+  }
+}
+
+// Download all your trained models
+const allDownloads = await downloadAllMyModels();
 ```
 
 ## Best Practices

@@ -1,14 +1,6 @@
 Learn how to create stunning AI-generated images using the Weights API. This guide walks you through the complete process from creating an image generation job to retrieving your final results.
 
-## Overview
-
-The Weights API provides powerful image generation capabilities through the Flux.Dev engine. You can create images from text prompts, customize dimensions, and even use trained LoRA models for specific styles.
-
-## Prerequisites
-
-- A Weights API account with an API key
-- Basic knowledge of HTTP requests and JSON
-- The Weights SDK installed (optional but recommended)
+You can create images with LoRas or with other images as a reference.
 
 ## Step 1: Set Up Your Environment
 
@@ -52,7 +44,7 @@ console.log(`Status: ${imageJob.status}`);
 
 ## Step 3: Check Job Status
 
-Image generation is asynchronous. Poll the status to know when your image is ready:
+Image generation can be asynchronous. Poll the status to know when your image is ready:
 
 ```javascript
 async function checkImageStatus(jobId) {
@@ -79,7 +71,7 @@ async function checkImageStatus(jobId) {
   return job;
 }
 
-// Check status every 10 seconds
+// Check status every 3 seconds
 const job = await checkImageStatus(imageJob.id);
 ```
 
@@ -205,7 +197,7 @@ async function generateImage(prompt) {
     // Poll for completion
     let completed = false;
     while (!completed) {
-      await new Promise((resolve) => setTimeout(resolve, 10000)); // Wait 10 seconds
+      await new Promise((resolve) => setTimeout(resolve, 3_000)); // Wait 3 seconds
 
       const status = await client.images.retrieve(job.id);
       console.log(`Status: ${status.status}`);
