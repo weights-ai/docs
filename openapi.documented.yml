@@ -27,13 +27,15 @@ paths:
               properties:
                 prompt:
                   description: Text description of the image to generate
-                  example: A beautiful sunset over mountains with a lake in the foreground
+                  examples:
+                    - A beautiful sunset over mountains with a lake in the foreground
                   type: string
                   minLength: 1
                   maxLength: 1000
                 loraIds:
                   description: Lora IDs to apply to the image generation - up to 3 Lora models can be applied
-                  example: cmcz8do7y00fw0dnd3t7906sy
+                  examples:
+                    - - cmcz8do7y00fw0dnd3t7906sy
                   default: []
                   minItems: 0
                   maxItems: 3
@@ -42,7 +44,8 @@ paths:
                     type: string
                 numImages:
                   description: Number of images to generate (1-4)
-                  example: 1
+                  examples:
+                    - 1
                   default: 1
                   type: number
                   minimum: 1
@@ -69,11 +72,13 @@ paths:
                 properties:
                   id:
                     description: Unique identifier for the visual creation job
-                    example: visual_123456789
+                    examples:
+                      - visual_123456789
                     type: string
                   status:
                     description: Current status of the visual creation job
-                    example: SUCCEEDED
+                    examples:
+                      - SUCCEEDED
                     type: string
                     enum:
                       - QUEUED
@@ -84,11 +89,13 @@ paths:
                       - CANCELED
                   prompt:
                     description: Text prompt used for the visual creation
-                    example: A beautiful sunset over mountains
+                    examples:
+                      - A beautiful sunset over mountains
                     type: string
                   type:
                     description: Type of visual creation job
-                    example: IMAGE_GENERATION
+                    examples:
+                      - IMAGE_GENERATION
                     type: string
                     enum:
                       - IMAGE
@@ -99,11 +106,13 @@ paths:
                       - UPSCALE
                   numImages:
                     description: Number of images generated
-                    example: 1
+                    examples:
+                      - 1
                     type: number
                   dimensions:
                     description: Dimensions of the generated images
-                    example: SQUARE
+                    examples:
+                      - SQUARE
                     type: string
                     enum:
                       - SQUARE
@@ -111,32 +120,37 @@ paths:
                       - LANDSCAPE
                   createdAt:
                     description: Timestamp when the job was created
-                    example: '2024-01-15T10:30:00Z'
+                    examples:
+                      - '2024-01-15T10:30:00Z'
                     type: string
                   updatedAt:
                     description: Timestamp when the job was last updated
-                    example: '2024-01-15T10:35:00Z'
+                    examples:
+                      - '2024-01-15T10:35:00Z'
                     type: string
                   outputUrls:
                     description: Array of URLs to the generated images
-                    example:
-                      - https://storage.example.com/images/generated_1.jpg
+                    examples:
+                      - - https://storage.example.com/images/generated_1.jpg
                     type: array
                     items:
                       type: string
                   lora:
                     description: Primary LoRA model used for generation
-                    example: null
+                    examples:
+                      - null
                     anyOf:
                       - type: object
                         properties:
                           id:
                             description: Unique identifier for the primary LoRA model
-                            example: lora_123456789
+                            examples:
+                              - lora_123456789
                             type: string
                           name:
                             description: Name of the primary LoRA model
-                            example: My Custom Style
+                            examples:
+                              - My Custom Style
                             type: string
                         required:
                           - id
@@ -145,17 +159,20 @@ paths:
                       - type: 'null'
                   secondaryLora:
                     description: Secondary LoRA model used for generation
-                    example: null
+                    examples:
+                      - null
                     anyOf:
                       - type: object
                         properties:
                           id:
                             description: Unique identifier for the secondary LoRA model
-                            example: lora_987654321
+                            examples:
+                              - lora_987654321
                             type: string
                           name:
                             description: Name of the secondary LoRA model
-                            example: Another Style
+                            examples:
+                              - Another Style
                             type: string
                         required:
                           - id
@@ -266,11 +283,13 @@ paths:
                 properties:
                   id:
                     description: Unique identifier for the visual creation job
-                    example: visual_123456789
+                    examples:
+                      - visual_123456789
                     type: string
                   status:
                     description: Current status of the visual creation job
-                    example: SUCCEEDED
+                    examples:
+                      - SUCCEEDED
                     type: string
                     enum:
                       - QUEUED
@@ -281,11 +300,13 @@ paths:
                       - CANCELED
                   prompt:
                     description: Text prompt used for the visual creation
-                    example: A beautiful sunset over mountains
+                    examples:
+                      - A beautiful sunset over mountains
                     type: string
                   type:
                     description: Type of visual creation job
-                    example: IMAGE_GENERATION
+                    examples:
+                      - IMAGE_GENERATION
                     type: string
                     enum:
                       - IMAGE
@@ -296,11 +317,13 @@ paths:
                       - UPSCALE
                   numImages:
                     description: Number of images generated
-                    example: 1
+                    examples:
+                      - 1
                     type: number
                   dimensions:
                     description: Dimensions of the generated images
-                    example: SQUARE
+                    examples:
+                      - SQUARE
                     type: string
                     enum:
                       - SQUARE
@@ -308,32 +331,37 @@ paths:
                       - LANDSCAPE
                   createdAt:
                     description: Timestamp when the job was created
-                    example: '2024-01-15T10:30:00Z'
+                    examples:
+                      - '2024-01-15T10:30:00Z'
                     type: string
                   updatedAt:
                     description: Timestamp when the job was last updated
-                    example: '2024-01-15T10:35:00Z'
+                    examples:
+                      - '2024-01-15T10:35:00Z'
                     type: string
                   outputUrls:
                     description: Array of URLs to the generated images
-                    example:
-                      - https://storage.example.com/images/generated_1.jpg
+                    examples:
+                      - - https://storage.example.com/images/generated_1.jpg
                     type: array
                     items:
                       type: string
                   lora:
                     description: Primary LoRA model used for generation
-                    example: null
+                    examples:
+                      - null
                     anyOf:
                       - type: object
                         properties:
                           id:
                             description: Unique identifier for the primary LoRA model
-                            example: lora_123456789
+                            examples:
+                              - lora_123456789
                             type: string
                           name:
                             description: Name of the primary LoRA model
-                            example: My Custom Style
+                            examples:
+                              - My Custom Style
                             type: string
                         required:
                           - id
@@ -342,17 +370,20 @@ paths:
                       - type: 'null'
                   secondaryLora:
                     description: Secondary LoRA model used for generation
-                    example: null
+                    examples:
+                      - null
                     anyOf:
                       - type: object
                         properties:
                           id:
                             description: Unique identifier for the secondary LoRA model
-                            example: lora_987654321
+                            examples:
+                              - lora_987654321
                             type: string
                           name:
                             description: Name of the secondary LoRA model
-                            example: Another Style
+                            examples:
+                              - Another Style
                             type: string
                         required:
                           - id
@@ -457,13 +488,15 @@ paths:
               properties:
                 prompt:
                   description: Text description of the video to generate
-                  example: A flowing river with leaves floating downstream
+                  examples:
+                    - A flowing river with leaves floating downstream
                   type: string
                   minLength: 1
                   maxLength: 1000
                 inputImageUrl:
                   description: URL to the input image to animate into a video
-                  example: https://storage.example.com/input/river.jpg
+                  examples:
+                    - https://storage.example.com/input/river.jpg
                   type: string
                   format: uri
               required:
@@ -568,7 +601,8 @@ paths:
           schema:
             default: 25
             description: Number of items to return per page
-            example: 25
+            examples:
+              - 25
             type: number
             minimum: 1
             maximum: 50
@@ -579,7 +613,8 @@ paths:
               - description: >-
                   Cursor for pagination to get the next page of results - this is the last item's ID from the
                   previous page
-                example: cmcz89fci00zr0dlt68klunpf
+                examples:
+                  - cmcz89fci00zr0dlt68klunpf
                 type: string
               - type: 'null'
       responses:
@@ -737,13 +772,15 @@ paths:
               properties:
                 name:
                   description: Name of the LoRA model
-                  example: My Custom Style
+                  examples:
+                    - My Custom Style
                   type: string
                   minLength: 1
                   maxLength: 100
                 images:
                   description: Array of training images (5-30 images required)
-                  example: []
+                  examples:
+                    - []
                   minItems: 5
                   maxItems: 30
                   type: array
@@ -752,18 +789,21 @@ paths:
                     properties:
                       url:
                         description: URL to the training image
-                        example: https://example.com/image1.jpg
+                        examples:
+                          - https://example.com/image1.jpg
                         type: string
                         format: uri
                       description:
                         description: Description of the training image
-                        example: Portrait with specific lighting
+                        examples:
+                          - Portrait with specific lighting
                         type: string
                     required:
                       - url
                 triggerWord:
                   description: Trigger word to activate the LoRA model
-                  example: my_style
+                  examples:
+                    - my_style
                   type: string
               required:
                 - name
@@ -899,67 +939,79 @@ paths:
                     properties:
                       id:
                         description: Unique identifier for the LoRA model
-                        example: lora_123456789
+                        examples:
+                          - lora_123456789
                         type: string
                       name:
                         description: Name of the LoRA model
-                        example: My Custom Style
+                        examples:
+                          - My Custom Style
                         type: string
                       description:
                         description: Description of the LoRA model
-                        example: A custom style trained on my artwork
+                        examples:
+                          - A custom style trained on my artwork
                         anyOf:
                           - type: string
                           - type: 'null'
                       triggers:
                         description: Array of trigger words for the LoRA model
-                        example:
-                          - my_style
-                          - custom_art
+                        examples:
+                          - - my_style
+                            - custom_art
                         type: array
                         items:
                           type: string
                       image:
                         description: URL to the preview image of the LoRA model
-                        example: https://storage.example.com/lora_preview.jpg
+                        examples:
+                          - https://storage.example.com/lora_preview.jpg
                         anyOf:
                           - type: string
                           - type: 'null'
                       blurDataUrl:
                         description: Blurred data URL for the preview image
-                        example: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...
+                        examples:
+                          - data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...
                         anyOf:
                           - type: string
                           - type: 'null'
                       isNSFW:
                         description: Whether the model contains NSFW content
-                        example: false
+                        examples:
+                          - false
                         type: boolean
                       isDeleted:
                         description: Whether the model has been deleted
-                        example: false
+                        examples:
+                          - false
                         type: boolean
                       createdAt:
                         description: Timestamp when the LoRA model was created
-                        example: '2024-01-15T10:30:00Z'
+                        examples:
+                          - '2024-01-15T10:30:00Z'
                         type: string
                       userId:
                         description: ID of the user who created the LoRA model
-                        example: user_123456789
+                        examples:
+                          - user_123456789
                         type: string
                       trainingJob:
                         description: Information about the most recent training job
-                        example: null
+                        examples:
+                          - null
                         anyOf:
                           - type: object
                             properties:
                               id:
                                 description: Unique identifier for the training job
-                                example: training_123456789
+                                examples:
+                                  - training_123456789
                                 type: string
                               status:
                                 description: Current status of the training job
-                                example: SUCCEEDED
+                                examples:
+                                  - SUCCEEDED
                                 type: string
                                 enum:
                                   - QUEUED
@@ -970,17 +1022,20 @@ paths:
                                   - CANCELED
                               createdAt:
                                 description: Timestamp when the training job was created
-                                example: '2024-01-15T10:30:00Z'
+                                examples:
+                                  - '2024-01-15T10:30:00Z'
                                 type: string
                               shortStatusText:
                                 description: Brief description of the current training status
-                                example: Training completed successfully
+                                examples:
+                                  - Training completed successfully
                                 anyOf:
                                   - type: string
                                   - type: 'null'
                               initialQueuePosition:
                                 description: Initial position in the training queue
-                                example: 10
+                                examples:
+                                  - 10
                                 anyOf:
                                   - type: number
                                   - type: 'null'
@@ -1209,7 +1264,8 @@ paths:
           schema:
             default: 25
             description: Number of items to return per page
-            example: 25
+            examples:
+              - 25
             type: number
             minimum: 1
             maximum: 50
@@ -1220,7 +1276,8 @@ paths:
               - description: >-
                   Cursor for pagination to get the next page of results - this is the last item's ID from the
                   previous page
-                example: cmcz89fci00zr0dlt68klunpf
+                examples:
+                  - cmcz89fci00zr0dlt68klunpf
                 type: string
               - type: 'null'
       responses:
@@ -1238,67 +1295,79 @@ paths:
                       properties:
                         id:
                           description: Unique identifier for the LoRA model
-                          example: lora_123456789
+                          examples:
+                            - lora_123456789
                           type: string
                         name:
                           description: Name of the LoRA model
-                          example: My Custom Style
+                          examples:
+                            - My Custom Style
                           type: string
                         description:
                           description: Description of the LoRA model
-                          example: A custom style trained on my artwork
+                          examples:
+                            - A custom style trained on my artwork
                           anyOf:
                             - type: string
                             - type: 'null'
                         triggers:
                           description: Array of trigger words for the LoRA model
-                          example:
-                            - my_style
-                            - custom_art
+                          examples:
+                            - - my_style
+                              - custom_art
                           type: array
                           items:
                             type: string
                         image:
                           description: URL to the preview image of the LoRA model
-                          example: https://storage.example.com/lora_preview.jpg
+                          examples:
+                            - https://storage.example.com/lora_preview.jpg
                           anyOf:
                             - type: string
                             - type: 'null'
                         blurDataUrl:
                           description: Blurred data URL for the preview image
-                          example: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...
+                          examples:
+                            - data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...
                           anyOf:
                             - type: string
                             - type: 'null'
                         isNSFW:
                           description: Whether the model contains NSFW content
-                          example: false
+                          examples:
+                            - false
                           type: boolean
                         isDeleted:
                           description: Whether the model has been deleted
-                          example: false
+                          examples:
+                            - false
                           type: boolean
                         createdAt:
                           description: Timestamp when the LoRA model was created
-                          example: '2024-01-15T10:30:00Z'
+                          examples:
+                            - '2024-01-15T10:30:00Z'
                           type: string
                         userId:
                           description: ID of the user who created the LoRA model
-                          example: user_123456789
+                          examples:
+                            - user_123456789
                           type: string
                         trainingJob:
                           description: Information about the most recent training job
-                          example: null
+                          examples:
+                            - null
                           anyOf:
                             - type: object
                               properties:
                                 id:
                                   description: Unique identifier for the training job
-                                  example: training_123456789
+                                  examples:
+                                    - training_123456789
                                   type: string
                                 status:
                                   description: Current status of the training job
-                                  example: SUCCEEDED
+                                  examples:
+                                    - SUCCEEDED
                                   type: string
                                   enum:
                                     - QUEUED
@@ -1309,17 +1378,20 @@ paths:
                                     - CANCELED
                                 createdAt:
                                   description: Timestamp when the training job was created
-                                  example: '2024-01-15T10:30:00Z'
+                                  examples:
+                                    - '2024-01-15T10:30:00Z'
                                   type: string
                                 shortStatusText:
                                   description: Brief description of the current training status
-                                  example: Training completed successfully
+                                  examples:
+                                    - Training completed successfully
                                   anyOf:
                                     - type: string
                                     - type: 'null'
                                 initialQueuePosition:
                                   description: Initial position in the training queue
-                                  example: 10
+                                  examples:
+                                    - 10
                                   anyOf:
                                     - type: number
                                     - type: 'null'
@@ -1432,7 +1504,8 @@ paths:
           schema:
             default: 25
             description: Number of items to return per page
-            example: 25
+            examples:
+              - 25
             type: number
             minimum: 1
             maximum: 50
@@ -1443,7 +1516,8 @@ paths:
               - description: >-
                   Cursor for pagination to get the next page of results - this is the last item's ID from the
                   previous page
-                example: cmcz89fci00zr0dlt68klunpf
+                examples:
+                  - cmcz89fci00zr0dlt68klunpf
                 type: string
               - type: 'null'
       responses:
@@ -1461,67 +1535,79 @@ paths:
                       properties:
                         id:
                           description: Unique identifier for the LoRA model
-                          example: lora_123456789
+                          examples:
+                            - lora_123456789
                           type: string
                         name:
                           description: Name of the LoRA model
-                          example: My Custom Style
+                          examples:
+                            - My Custom Style
                           type: string
                         description:
                           description: Description of the LoRA model
-                          example: A custom style trained on my artwork
+                          examples:
+                            - A custom style trained on my artwork
                           anyOf:
                             - type: string
                             - type: 'null'
                         triggers:
                           description: Array of trigger words for the LoRA model
-                          example:
-                            - my_style
-                            - custom_art
+                          examples:
+                            - - my_style
+                              - custom_art
                           type: array
                           items:
                             type: string
                         image:
                           description: URL to the preview image of the LoRA model
-                          example: https://storage.example.com/lora_preview.jpg
+                          examples:
+                            - https://storage.example.com/lora_preview.jpg
                           anyOf:
                             - type: string
                             - type: 'null'
                         blurDataUrl:
                           description: Blurred data URL for the preview image
-                          example: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...
+                          examples:
+                            - data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...
                           anyOf:
                             - type: string
                             - type: 'null'
                         isNSFW:
                           description: Whether the model contains NSFW content
-                          example: false
+                          examples:
+                            - false
                           type: boolean
                         isDeleted:
                           description: Whether the model has been deleted
-                          example: false
+                          examples:
+                            - false
                           type: boolean
                         createdAt:
                           description: Timestamp when the LoRA model was created
-                          example: '2024-01-15T10:30:00Z'
+                          examples:
+                            - '2024-01-15T10:30:00Z'
                           type: string
                         userId:
                           description: ID of the user who created the LoRA model
-                          example: user_123456789
+                          examples:
+                            - user_123456789
                           type: string
                         trainingJob:
                           description: Information about the most recent training job
-                          example: null
+                          examples:
+                            - null
                           anyOf:
                             - type: object
                               properties:
                                 id:
                                   description: Unique identifier for the training job
-                                  example: training_123456789
+                                  examples:
+                                    - training_123456789
                                   type: string
                                 status:
                                   description: Current status of the training job
-                                  example: SUCCEEDED
+                                  examples:
+                                    - SUCCEEDED
                                   type: string
                                   enum:
                                     - QUEUED
@@ -1532,17 +1618,20 @@ paths:
                                     - CANCELED
                                 createdAt:
                                   description: Timestamp when the training job was created
-                                  example: '2024-01-15T10:30:00Z'
+                                  examples:
+                                    - '2024-01-15T10:30:00Z'
                                   type: string
                                 shortStatusText:
                                   description: Brief description of the current training status
-                                  example: Training completed successfully
+                                  examples:
+                                    - Training completed successfully
                                   anyOf:
                                     - type: string
                                     - type: 'null'
                                 initialQueuePosition:
                                   description: Initial position in the training queue
-                                  example: 10
+                                  examples:
+                                    - 10
                                   anyOf:
                                     - type: number
                                     - type: 'null'
@@ -1744,7 +1833,8 @@ paths:
           schema:
             default: 25
             description: Number of items to return per page
-            example: 25
+            examples:
+              - 25
             type: number
             minimum: 1
             maximum: 50
@@ -1755,7 +1845,8 @@ paths:
               - description: >-
                   Cursor for pagination to get the next page of results - this is the last item's ID from the
                   previous page
-                example: cmcz89fci00zr0dlt68klunpf
+                examples:
+                  - cmcz89fci00zr0dlt68klunpf
                 type: string
               - type: 'null'
       responses:
@@ -1773,27 +1864,32 @@ paths:
                       properties:
                         id:
                           description: Unique identifier for the cover job
-                          example: cover_123456789
+                          examples:
+                            - cover_123456789
                           type: string
                         createdAt:
                           description: Timestamp when the cover job was created
-                          example: '2024-01-15T10:30:00Z'
+                          examples:
+                            - '2024-01-15T10:30:00Z'
                           type: string
                         outputUrl:
                           description: URL to the generated cover audio file
-                          example: https://storage.example.com/covers/cover_123456789.mp3
+                          examples:
+                            - https://storage.example.com/covers/cover_123456789.mp3
                           anyOf:
                             - type: string
                             - type: 'null'
                         inputFileName:
                           description: Original filename of the input audio
-                          example: original_song.wav
+                          examples:
+                            - original_song.wav
                           anyOf:
                             - type: string
                             - type: 'null'
                         status:
                           description: Current status of the cover generation job
-                          example: SUCCEEDED
+                          examples:
+                            - SUCCEEDED
                           type: string
                           enum:
                             - QUEUED
@@ -1804,37 +1900,43 @@ paths:
                             - CANCELED
                         inputUrl:
                           description: URL to the input audio file
-                          example: https://storage.example.com/input/original_song.wav
+                          examples:
+                            - https://storage.example.com/input/original_song.wav
                           anyOf:
                             - type: string
                             - type: 'null'
                         ttsText:
                           description: Text-to-speech content if using TTS
-                          example: Hello world, this is a test
+                          examples:
+                            - Hello world, this is a test
                           anyOf:
                             - type: string
                             - type: 'null'
                         stemOnly:
                           description: Whether to process only the vocal stem
-                          example: false
+                          examples:
+                            - false
                           anyOf:
                             - type: boolean
                             - type: 'null'
                         preStemmed:
                           description: Whether the input audio is already stemmed
-                          example: false
+                          examples:
+                            - false
                           anyOf:
                             - type: boolean
                             - type: 'null'
                         pitch:
                           description: Pitch adjustment value for the voice
-                          example: 0
+                          examples:
+                            - 0
                           anyOf:
                             - type: number
                             - type: 'null'
                         queuePosition:
                           description: Current position in the processing queue
-                          example: 3
+                          examples:
+                            - 3
                           anyOf:
                             - type: number
                             - type: 'null'
@@ -1940,27 +2042,32 @@ paths:
                     properties:
                       id:
                         description: Unique identifier for the cover job
-                        example: cover_123456789
+                        examples:
+                          - cover_123456789
                         type: string
                       createdAt:
                         description: Timestamp when the cover job was created
-                        example: '2024-01-15T10:30:00Z'
+                        examples:
+                          - '2024-01-15T10:30:00Z'
                         type: string
                       outputUrl:
                         description: URL to the generated cover audio file
-                        example: https://storage.example.com/covers/cover_123456789.mp3
+                        examples:
+                          - https://storage.example.com/covers/cover_123456789.mp3
                         anyOf:
                           - type: string
                           - type: 'null'
                       inputFileName:
                         description: Original filename of the input audio
-                        example: original_song.wav
+                        examples:
+                          - original_song.wav
                         anyOf:
                           - type: string
                           - type: 'null'
                       status:
                         description: Current status of the cover generation job
-                        example: SUCCEEDED
+                        examples:
+                          - SUCCEEDED
                         type: string
                         enum:
                           - QUEUED
@@ -1971,37 +2078,43 @@ paths:
                           - CANCELED
                       inputUrl:
                         description: URL to the input audio file
-                        example: https://storage.example.com/input/original_song.wav
+                        examples:
+                          - https://storage.example.com/input/original_song.wav
                         anyOf:
                           - type: string
                           - type: 'null'
                       ttsText:
                         description: Text-to-speech content if using TTS
-                        example: Hello world, this is a test
+                        examples:
+                          - Hello world, this is a test
                         anyOf:
                           - type: string
                           - type: 'null'
                       stemOnly:
                         description: Whether to process only the vocal stem
-                        example: false
+                        examples:
+                          - false
                         anyOf:
                           - type: boolean
                           - type: 'null'
                       preStemmed:
                         description: Whether the input audio is already stemmed
-                        example: false
+                        examples:
+                          - false
                         anyOf:
                           - type: boolean
                           - type: 'null'
                       pitch:
                         description: Pitch adjustment value for the voice
-                        example: 0
+                        examples:
+                          - 0
                         anyOf:
                           - type: number
                           - type: 'null'
                       queuePosition:
                         description: Current position in the processing queue
-                        example: 3
+                        examples:
+                          - 3
                         anyOf:
                           - type: number
                           - type: 'null'
@@ -2098,53 +2211,64 @@ paths:
               properties:
                 rvcModelId:
                   description: ID of the RVC voice model to use for cloning
-                  example: model_123456789
+                  examples:
+                    - model_123456789
                   type: string
                 inputUrl:
                   description: URL to the input audio file to be processed
-                  example: https://storage.example.com/input/song.wav
+                  examples:
+                    - https://storage.example.com/input/song.wav
                   type: string
                 inputFileName:
                   description: Original filename of the input audio
-                  example: my_song.wav
+                  examples:
+                    - my_song.wav
                   type: string
                 pitch:
                   description: Pitch adjustment value for the voice (in semitones)
-                  example: 0
+                  examples:
+                    - 0
                   default: 0
                   type: number
                 preStemmed:
                   description: Whether the input audio is already separated into stems
-                  example: false
+                  examples:
+                    - false
                   default: false
                   type: boolean
                 stemOnly:
                   description: Whether to process only the vocal stem
-                  example: false
+                  examples:
+                    - false
                   default: false
                   type: boolean
                 instrumentalPitch:
                   description: Pitch adjustment for the instrumental track
-                  example: 0
+                  examples:
+                    - 0
                   default: 0
                   type: number
                 deEcho:
                   description: Whether to remove echo from the audio
-                  example: false
+                  examples:
+                    - false
                   default: false
                   type: boolean
                 isolateMainVocals:
                   description: Whether to isolate only the main vocal track
-                  example: false
+                  examples:
+                    - false
                   default: false
                   type: boolean
                 consonantProtection:
                   description: Consonant protection level (0-1)
-                  example: 0.5
+                  examples:
+                    - 0.5
                   type: number
                 volumeEnvelope:
                   description: Volume envelope adjustment value
-                  example: 1
+                  examples:
+                    - 1
                   type: number
               required:
                 - rvcModelId
@@ -2159,27 +2283,32 @@ paths:
                 properties:
                   id:
                     description: Unique identifier for the cover job
-                    example: cover_123456789
+                    examples:
+                      - cover_123456789
                     type: string
                   createdAt:
                     description: Timestamp when the cover job was created
-                    example: '2024-01-15T10:30:00Z'
+                    examples:
+                      - '2024-01-15T10:30:00Z'
                     type: string
                   outputUrl:
                     description: URL to the generated cover audio file
-                    example: https://storage.example.com/covers/cover_123456789.mp3
+                    examples:
+                      - https://storage.example.com/covers/cover_123456789.mp3
                     anyOf:
                       - type: string
                       - type: 'null'
                   inputFileName:
                     description: Original filename of the input audio
-                    example: original_song.wav
+                    examples:
+                      - original_song.wav
                     anyOf:
                       - type: string
                       - type: 'null'
                   status:
                     description: Current status of the cover generation job
-                    example: SUCCEEDED
+                    examples:
+                      - SUCCEEDED
                     type: string
                     enum:
                       - QUEUED
@@ -2190,37 +2319,43 @@ paths:
                       - CANCELED
                   inputUrl:
                     description: URL to the input audio file
-                    example: https://storage.example.com/input/original_song.wav
+                    examples:
+                      - https://storage.example.com/input/original_song.wav
                     anyOf:
                       - type: string
                       - type: 'null'
                   ttsText:
                     description: Text-to-speech content if using TTS
-                    example: Hello world, this is a test
+                    examples:
+                      - Hello world, this is a test
                     anyOf:
                       - type: string
                       - type: 'null'
                   stemOnly:
                     description: Whether to process only the vocal stem
-                    example: false
+                    examples:
+                      - false
                     anyOf:
                       - type: boolean
                       - type: 'null'
                   preStemmed:
                     description: Whether the input audio is already stemmed
-                    example: false
+                    examples:
+                      - false
                     anyOf:
                       - type: boolean
                       - type: 'null'
                   pitch:
                     description: Pitch adjustment value for the voice
-                    example: 0
+                    examples:
+                      - 0
                     anyOf:
                       - type: number
                       - type: 'null'
                   queuePosition:
                     description: Current position in the processing queue
-                    example: 3
+                    examples:
+                      - 3
                     anyOf:
                       - type: number
                       - type: 'null'
@@ -2319,15 +2454,18 @@ paths:
               properties:
                 url:
                   description: URL to the RVC model file
-                  example: https://storage.example.com/models/voice_model.pth
+                  examples:
+                    - https://storage.example.com/models/voice_model.pth
                   type: string
                 title:
                   description: Name for the voice model
-                  example: John Doe Voice Model
+                  examples:
+                    - John Doe Voice Model
                   type: string
                 description:
                   description: Description of the voice model
-                  example: A voice model trained on John Doe's voice recordings
+                  examples:
+                    - A voice model trained on John Doe's voice recordings
                   type: string
               required:
                 - url
@@ -2343,15 +2481,18 @@ paths:
                 properties:
                   id:
                     description: Unique identifier for the RVC model
-                    example: model_123456789
+                    examples:
+                      - model_123456789
                     type: string
                   title:
                     description: Name of the RVC voice model
-                    example: John Doe Voice Model
+                    examples:
+                      - John Doe Voice Model
                     type: string
                   createdAt:
                     description: Timestamp when the model was created
-                    example: '2024-01-15T10:30:00Z'
+                    examples:
+                      - '2024-01-15T10:30:00Z'
                     type: string
                 required:
                   - id
@@ -2451,17 +2592,20 @@ paths:
               properties:
                 name:
                   description: Name for the RVC voice model
-                  example: John Doe Voice Model
+                  examples:
+                    - John Doe Voice Model
                   type: string
                   minLength: 1
                   maxLength: 100
                 description:
                   description: Description of the voice model
-                  example: A voice model trained on John Doe's voice recordings
+                  examples:
+                    - A voice model trained on John Doe's voice recordings
                   type: string
                 audioFiles:
                   description: Array of training audio files (1-50 files required)
-                  example: []
+                  examples:
+                    - []
                   minItems: 1
                   maxItems: 50
                   type: array
@@ -2470,12 +2614,14 @@ paths:
                     properties:
                       url:
                         description: URL to the training audio file
-                        example: https://storage.example.com/training/voice_sample1.wav
+                        examples:
+                          - https://storage.example.com/training/voice_sample1.wav
                         type: string
                         format: uri
                       isPreStemmed:
                         description: Whether the audio file is already separated into stems
-                        example: false
+                        examples:
+                          - false
                         default: false
                         type: boolean
                     required:
@@ -2484,12 +2630,14 @@ paths:
                   description: >-
                     Whether to run the UVR-MDX-NET Karaoke stemming processing on the audio to isolate the
                     main vocals
-                  example: false
+                  examples:
+                    - false
                   default: false
                   type: boolean
                 deEchoDeReverb:
                   description: Whether to remove echo and reverb from the audio
-                  example: false
+                  examples:
+                    - false
                   default: false
                   type: boolean
               required:
@@ -2505,27 +2653,32 @@ paths:
                 properties:
                   id:
                     description: Unique identifier for the RVC training job
-                    example: training_123456789
+                    examples:
+                      - training_123456789
                     type: string
                   name:
                     description: Name of the RVC voice model being trained
-                    example: John Doe Voice Model
+                    examples:
+                      - John Doe Voice Model
                     type: string
                   description:
                     description: Description of the voice model
-                    example: A voice model trained on John Doe's voice recordings
+                    examples:
+                      - A voice model trained on John Doe's voice recordings
                     anyOf:
                       - type: string
                       - type: 'null'
                   image:
                     description: URL to the model preview image
-                    example: https://storage.example.com/model_preview.jpg
+                    examples:
+                      - https://storage.example.com/model_preview.jpg
                     anyOf:
                       - type: string
                       - type: 'null'
                   status:
                     description: Current status of the training job
-                    example: PROCESSING
+                    examples:
+                      - PROCESSING
                     anyOf:
                       - type: string
                         enum:
@@ -2538,67 +2691,80 @@ paths:
                       - type: 'null'
                   shortStatusText:
                     description: Brief description of the current training status
-                    example: Training model with 15 audio files
+                    examples:
+                      - Training model with 15 audio files
                     anyOf:
                       - type: string
                       - type: 'null'
                   createdAt:
                     description: Timestamp when the training job was created
-                    example: '2024-01-15T10:30:00Z'
+                    examples:
+                      - '2024-01-15T10:30:00Z'
                     type: string
                   updatedAt:
                     description: Timestamp when the training job was last updated
-                    example: '2024-01-15T10:35:00Z'
+                    examples:
+                      - '2024-01-15T10:35:00Z'
                     type: string
                   startTime:
                     description: Timestamp when training started
-                    example: '2024-01-15T10:31:00Z'
+                    examples:
+                      - '2024-01-15T10:31:00Z'
                     anyOf:
                       - type: string
                       - type: 'null'
                   endTime:
                     description: Timestamp when training completed
-                    example: '2024-01-15T10:34:00Z'
+                    examples:
+                      - '2024-01-15T10:34:00Z'
                     anyOf:
                       - type: string
                       - type: 'null'
                   attempt:
                     description: Number of training attempts made
-                    example: 1
+                    examples:
+                      - 1
                     type: number
                   initialQueuePosition:
                     description: Initial position in the training queue
-                    example: 5
+                    examples:
+                      - 5
                     anyOf:
                       - type: number
                       - type: 'null'
                   isolateMainVocals:
                     description: Whether main vocal isolation was enabled
-                    example: false
+                    examples:
+                      - false
                     type: boolean
                   deEchoDeReverb:
                     description: Whether echo and reverb removal was enabled
-                    example: false
+                    examples:
+                      - false
                     type: boolean
                   rvcModelId:
                     description: ID of the associated RVC model
-                    example: clm72xn4s11ttcctcr0dl9yfy
+                    examples:
+                      - clm72xn4s11ttcctcr0dl9yfy
                     anyOf:
                       - type: string
                       - type: 'null'
                   rvcModel:
                     description: Associated RVC model information
-                    example: null
+                    examples:
+                      - null
                     anyOf:
                       - type: object
                         properties:
                           id:
                             description: Unique identifier for the RVC model
-                            example: clm72xn4s11ttcctcr0dl9yfy
+                            examples:
+                              - clm72xn4s11ttcctcr0dl9yfy
                             type: string
                           title:
                             description: Title of the RVC model
-                            example: John Doe Voice Model
+                            examples:
+                              - John Doe Voice Model
                             type: string
                         required:
                           - id
@@ -2607,26 +2773,31 @@ paths:
                       - type: 'null'
                   audioFiles:
                     description: Array of training audio files
-                    example: []
+                    examples:
+                      - []
                     type: array
                     items:
                       type: object
                       properties:
                         id:
                           description: Unique identifier for the audio file
-                          example: clm72xn4s11ttcctcr0dl9yfy
+                          examples:
+                            - clm72xn4s11ttcctcr0dl9yfy
                           type: string
                         url:
                           description: URL to the training audio file
-                          example: https://storage.example.com/training/voice_sample1.wav
+                          examples:
+                            - https://storage.example.com/training/voice_sample1.wav
                           type: string
                         isPreStemmed:
                           description: Whether the audio file is pre-stemmed
-                          example: false
+                          examples:
+                            - false
                           type: boolean
                         createdAt:
                           description: Timestamp when the audio file was uploaded
-                          example: '2024-01-15T10:30:00Z'
+                          examples:
+                            - '2024-01-15T10:30:00Z'
                           type: string
                       required:
                         - id
@@ -2636,7 +2807,8 @@ paths:
                       additionalProperties: false
                   queuePosition:
                     description: Current position in the training queue
-                    example: 2
+                    examples:
+                      - 2
                     anyOf:
                       - type: number
                       - type: 'null'
@@ -2741,7 +2913,8 @@ paths:
           schema:
             default: 25
             description: Number of items to return per page
-            example: 25
+            examples:
+              - 25
             type: number
             minimum: 1
             maximum: 50
@@ -2752,7 +2925,8 @@ paths:
               - description: >-
                   Cursor for pagination to get the next page of results - this is the last item's ID from the
                   previous page
-                example: cmcz89fci00zr0dlt68klunpf
+                examples:
+                  - cmcz89fci00zr0dlt68klunpf
                 type: string
               - type: 'null'
       responses:
@@ -2978,15 +3152,18 @@ paths:
                     properties:
                       id:
                         description: Unique identifier for the RVC model
-                        example: model_123456789
+                        examples:
+                          - model_123456789
                         type: string
                       title:
                         description: Name of the RVC voice model
-                        example: John Doe Voice Model
+                        examples:
+                          - John Doe Voice Model
                         type: string
                       createdAt:
                         description: Timestamp when the model was created
-                        example: '2024-01-15T10:30:00Z'
+                        examples:
+                          - '2024-01-15T10:30:00Z'
                         type: string
                     required:
                       - id
@@ -3088,27 +3265,32 @@ paths:
                     properties:
                       id:
                         description: Unique identifier for the RVC training job
-                        example: training_123456789
+                        examples:
+                          - training_123456789
                         type: string
                       name:
                         description: Name of the RVC voice model being trained
-                        example: John Doe Voice Model
+                        examples:
+                          - John Doe Voice Model
                         type: string
                       description:
                         description: Description of the voice model
-                        example: A voice model trained on John Doe's voice recordings
+                        examples:
+                          - A voice model trained on John Doe's voice recordings
                         anyOf:
                           - type: string
                           - type: 'null'
                       image:
                         description: URL to the model preview image
-                        example: https://storage.example.com/model_preview.jpg
+                        examples:
+                          - https://storage.example.com/model_preview.jpg
                         anyOf:
                           - type: string
                           - type: 'null'
                       status:
                         description: Current status of the training job
-                        example: PROCESSING
+                        examples:
+                          - PROCESSING
                         anyOf:
                           - type: string
                             enum:
@@ -3121,67 +3303,80 @@ paths:
                           - type: 'null'
                       shortStatusText:
                         description: Brief description of the current training status
-                        example: Training model with 15 audio files
+                        examples:
+                          - Training model with 15 audio files
                         anyOf:
                           - type: string
                           - type: 'null'
                       createdAt:
                         description: Timestamp when the training job was created
-                        example: '2024-01-15T10:30:00Z'
+                        examples:
+                          - '2024-01-15T10:30:00Z'
                         type: string
                       updatedAt:
                         description: Timestamp when the training job was last updated
-                        example: '2024-01-15T10:35:00Z'
+                        examples:
+                          - '2024-01-15T10:35:00Z'
                         type: string
                       startTime:
                         description: Timestamp when training started
-                        example: '2024-01-15T10:31:00Z'
+                        examples:
+                          - '2024-01-15T10:31:00Z'
                         anyOf:
                           - type: string
                           - type: 'null'
                       endTime:
                         description: Timestamp when training completed
-                        example: '2024-01-15T10:34:00Z'
+                        examples:
+                          - '2024-01-15T10:34:00Z'
                         anyOf:
                           - type: string
                           - type: 'null'
                       attempt:
                         description: Number of training attempts made
-                        example: 1
+                        examples:
+                          - 1
                         type: number
                       initialQueuePosition:
                         description: Initial position in the training queue
-                        example: 5
+                        examples:
+                          - 5
                         anyOf:
                           - type: number
                           - type: 'null'
                       isolateMainVocals:
                         description: Whether main vocal isolation was enabled
-                        example: false
+                        examples:
+                          - false
                         type: boolean
                       deEchoDeReverb:
                         description: Whether echo and reverb removal was enabled
-                        example: false
+                        examples:
+                          - false
                         type: boolean
                       rvcModelId:
                         description: ID of the associated RVC model
-                        example: clm72xn4s11ttcctcr0dl9yfy
+                        examples:
+                          - clm72xn4s11ttcctcr0dl9yfy
                         anyOf:
                           - type: string
                           - type: 'null'
                       rvcModel:
                         description: Associated RVC model information
-                        example: null
+                        examples:
+                          - null
                         anyOf:
                           - type: object
                             properties:
                               id:
                                 description: Unique identifier for the RVC model
-                                example: clm72xn4s11ttcctcr0dl9yfy
+                                examples:
+                                  - clm72xn4s11ttcctcr0dl9yfy
                                 type: string
                               title:
                                 description: Title of the RVC model
-                                example: John Doe Voice Model
+                                examples:
+                                  - John Doe Voice Model
                                 type: string
                             required:
                               - id
@@ -3190,26 +3385,31 @@ paths:
                           - type: 'null'
                       audioFiles:
                         description: Array of training audio files
-                        example: []
+                        examples:
+                          - []
                         type: array
                         items:
                           type: object
                           properties:
                             id:
                               description: Unique identifier for the audio file
-                              example: clm72xn4s11ttcctcr0dl9yfy
+                              examples:
+                                - clm72xn4s11ttcctcr0dl9yfy
                               type: string
                             url:
                               description: URL to the training audio file
-                              example: https://storage.example.com/training/voice_sample1.wav
+                              examples:
+                                - https://storage.example.com/training/voice_sample1.wav
                               type: string
                             isPreStemmed:
                               description: Whether the audio file is pre-stemmed
-                              example: false
+                              examples:
+                                - false
                               type: boolean
                             createdAt:
                               description: Timestamp when the audio file was uploaded
-                              example: '2024-01-15T10:30:00Z'
+                              examples:
+                                - '2024-01-15T10:30:00Z'
                               type: string
                           required:
                             - id
@@ -3219,7 +3419,8 @@ paths:
                           additionalProperties: false
                       queuePosition:
                         description: Current position in the training queue
-                        example: 2
+                        examples:
+                          - 2
                         anyOf:
                           - type: number
                           - type: 'null'
@@ -3446,7 +3647,8 @@ paths:
           schema:
             default: 25
             description: Number of items to return per page
-            example: 25
+            examples:
+              - 25
             type: number
             minimum: 1
             maximum: 50
@@ -3457,7 +3659,8 @@ paths:
               - description: >-
                   Cursor for pagination to get the next page of results - this is the last item's ID from the
                   previous page
-                example: cmcz89fci00zr0dlt68klunpf
+                examples:
+                  - cmcz89fci00zr0dlt68klunpf
                 type: string
               - type: 'null'
       responses:
@@ -3475,15 +3678,18 @@ paths:
                       properties:
                         id:
                           description: Unique identifier for the RVC model
-                          example: model_123456789
+                          examples:
+                            - model_123456789
                           type: string
                         title:
                           description: Name of the RVC voice model
-                          example: John Doe Voice Model
+                          examples:
+                            - John Doe Voice Model
                           type: string
                         createdAt:
                           description: Timestamp when the model was created
-                          example: '2024-01-15T10:30:00Z'
+                          examples:
+                            - '2024-01-15T10:30:00Z'
                           type: string
                       required:
                         - id
@@ -3679,14 +3885,18 @@ paths:
               properties:
                 lyrics:
                   description: The lyrics for the song to be generated
-                  example: In the moonlight, we dance through the night
+                  examples:
+                    - In the moonlight, we dance through the night
                   type: string
-                  maxLength: 380
+                  minLength: 10
+                  maxLength: 600
                 prompt:
                   description: The prompt for the style of the song
-                  example: blues, melancholic, raw, lonely bar, heartbreak
+                  examples:
+                    - blues, melancholic, raw, lonely bar, heartbreak
                   type: string
-                  maxLength: 590
+                  minLength: 10
+                  maxLength: 300
               required:
                 - lyrics
                 - prompt
@@ -3800,31 +4010,37 @@ paths:
                     properties:
                       id:
                         description: Unique identifier for the song generation job
-                        example: cmcz89fci00zr0dlt68klunpf
+                        examples:
+                          - cmcz89fci00zr0dlt68klunpf
                         type: string
                       createdAt:
                         description: Timestamp when the job was created
-                        example: '2024-01-15T10:30:00Z'
+                        examples:
+                          - '2024-01-15T10:30:00Z'
                         type: string
                       updatedAt:
                         description: Timestamp when the job was last updated
-                        example: '2024-01-15T10:35:00Z'
+                        examples:
+                          - '2024-01-15T10:35:00Z'
                         type: string
                       startTime:
                         description: Timestamp when processing started
-                        example: '2024-01-15T10:31:00Z'
+                        examples:
+                          - '2024-01-15T10:31:00Z'
                         anyOf:
                           - type: string
                           - type: 'null'
                       endTime:
                         description: Timestamp when processing completed
-                        example: '2024-01-15T10:34:00Z'
+                        examples:
+                          - '2024-01-15T10:34:00Z'
                         anyOf:
                           - type: string
                           - type: 'null'
                       status:
                         description: Current status of the song generation job
-                        example: SUCCEEDED
+                        examples:
+                          - SUCCEEDED
                         type: string
                         enum:
                           - QUEUED
@@ -3835,27 +4051,32 @@ paths:
                           - CANCELED
                       attempt:
                         description: Number of processing attempts made
-                        example: 1
+                        examples:
+                          - 1
                         type: integer
                         minimum: -9007199254740991
                         maximum: 9007199254740991
                       outputUrl:
                         description: URL to the generated song file
-                        example: https://tracks.weights.com/songs/song_123456789.mp3
+                        examples:
+                          - https://tracks.weights.com/songs/song_123456789.mp3
                         anyOf:
                           - type: string
                           - type: 'null'
                       lyrics:
                         description: The lyrics used to generate the song
-                        example: In the moonlight, we dance through the night
+                        examples:
+                          - In the moonlight, we dance through the night
                         type: string
                       prompt:
                         description: The prompt used to generate the song
-                        example: blues, melancholic, raw, lonely bar, heartbreak
+                        examples:
+                          - blues, melancholic, raw, lonely bar, heartbreak
                         type: string
                       queuePosition:
                         description: Current position in the processing queue
-                        example: 5
+                        examples:
+                          - 5
                         anyOf:
                           - type: number
                           - type: 'null'
@@ -3961,7 +4182,8 @@ paths:
           schema:
             default: 25
             description: Number of items to return per page
-            example: 25
+            examples:
+              - 25
             type: number
             minimum: 1
             maximum: 50
@@ -3972,7 +4194,8 @@ paths:
               - description: >-
                   Cursor for pagination to get the next page of results - this is the last item's ID from the
                   previous page
-                example: cmcz89fci00zr0dlt68klunpf
+                examples:
+                  - cmcz89fci00zr0dlt68klunpf
                 type: string
               - type: 'null'
       responses:
@@ -3990,31 +4213,37 @@ paths:
                       properties:
                         id:
                           description: Unique identifier for the song generation job
-                          example: cmcz89fci00zr0dlt68klunpf
+                          examples:
+                            - cmcz89fci00zr0dlt68klunpf
                           type: string
                         createdAt:
                           description: Timestamp when the job was created
-                          example: '2024-01-15T10:30:00Z'
+                          examples:
+                            - '2024-01-15T10:30:00Z'
                           type: string
                         updatedAt:
                           description: Timestamp when the job was last updated
-                          example: '2024-01-15T10:35:00Z'
+                          examples:
+                            - '2024-01-15T10:35:00Z'
                           type: string
                         startTime:
                           description: Timestamp when processing started
-                          example: '2024-01-15T10:31:00Z'
+                          examples:
+                            - '2024-01-15T10:31:00Z'
                           anyOf:
                             - type: string
                             - type: 'null'
                         endTime:
                           description: Timestamp when processing completed
-                          example: '2024-01-15T10:34:00Z'
+                          examples:
+                            - '2024-01-15T10:34:00Z'
                           anyOf:
                             - type: string
                             - type: 'null'
                         status:
                           description: Current status of the song generation job
-                          example: SUCCEEDED
+                          examples:
+                            - SUCCEEDED
                           type: string
                           enum:
                             - QUEUED
@@ -4025,27 +4254,32 @@ paths:
                             - CANCELED
                         attempt:
                           description: Number of processing attempts made
-                          example: 1
+                          examples:
+                            - 1
                           type: integer
                           minimum: -9007199254740991
                           maximum: 9007199254740991
                         outputUrl:
                           description: URL to the generated song file
-                          example: https://tracks.weights.com/songs/song_123456789.mp3
+                          examples:
+                            - https://tracks.weights.com/songs/song_123456789.mp3
                           anyOf:
                             - type: string
                             - type: 'null'
                         lyrics:
                           description: The lyrics used to generate the song
-                          example: In the moonlight, we dance through the night
+                          examples:
+                            - In the moonlight, we dance through the night
                           type: string
                         prompt:
                           description: The prompt used to generate the song
-                          example: blues, melancholic, raw, lonely bar, heartbreak
+                          examples:
+                            - blues, melancholic, raw, lonely bar, heartbreak
                           type: string
                         queuePosition:
                           description: Current position in the processing queue
-                          example: 5
+                          examples:
+                            - 5
                           anyOf:
                             - type: number
                             - type: 'null'
