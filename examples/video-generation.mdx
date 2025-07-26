@@ -19,7 +19,7 @@ First, install the Weights SDK and set up your authentication:
 npm install @weights-ai/sdk
 ```
 
-```javascript
+```typescript
 import Weights from "@weights-ai/sdk";
 
 const client = new Weights({
@@ -40,7 +40,7 @@ Before creating a video, you need to upload your image to a web-accessible locat
 
 ### Example Image Upload
 
-```javascript
+```typescript
 // Example: Upload to a cloud storage service
 // This is just an example - you'll need to implement your own upload logic
 async function uploadImage(imageFile) {
@@ -57,7 +57,7 @@ console.log("Image uploaded to:", inputImageUrl);
 
 Start by creating a video generation job:
 
-```javascript
+```typescript
 const videoJob = await client.videos.create({
   prompt: "Gentle swaying motion with flowing movement",
   inputImageUrl: "https://example.com/your-image.jpg",
@@ -75,7 +75,7 @@ console.log(`Video job created with ID: ${videoJob.id}`);
 
 Video generation is asynchronous and typically takes longer than image generation. Poll the status to track progress:
 
-```javascript
+```typescript
 async function checkVideoStatus(jobId) {
   const job = await client.videos.retrieve(jobId);
 
@@ -117,7 +117,7 @@ const job = await checkVideoStatus(videoJob.id);
 
 Once the status is `SUCCEEDED`, your video is ready for download:
 
-```javascript
+```typescript
 if (job.status === "SUCCEEDED") {
   console.log("Your video is ready!");
   console.log("Download URL:", job.outputUrl);
@@ -133,7 +133,7 @@ if (job.status === "SUCCEEDED") {
 
 Experiment with various motion prompts:
 
-```javascript
+```typescript
 // Gentle movement
 const gentleVideo = await client.videos.create({
   prompt: "Subtle breathing motion with soft waves",
@@ -171,7 +171,7 @@ const naturalVideo = await client.videos.create({
 
 ### Error Handling
 
-```javascript
+```typescript
 try {
   const videoJob = await client.videos.create({
     prompt: "Your motion prompt",
@@ -192,7 +192,7 @@ try {
 
 Here's a complete example that creates a video and waits for completion:
 
-```javascript
+```typescript
 import Weights from "@weights-ai/sdk";
 
 const client = new Weights({
@@ -216,6 +216,9 @@ async function generateVideo(imageUrl, motionPrompt) {
       await new Promise((resolve) => setTimeout(resolve, 30000)); // Wait 30 seconds
 
       const status = await client.videos.retrieve(job.id);
+      if(!status){
+        throw new Error("Video status not found");
+      }
       console.log(`Status: ${status.status}`);
 
       if (status.status === "SUCCEEDED") {

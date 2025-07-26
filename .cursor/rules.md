@@ -73,7 +73,7 @@ Positive confirmations, successful completions, or achievement indicators
 
 Example of a single code block:
 
-```javascript config.js
+```typescript config.js
 const apiConfig = {
   baseURL: 'https://api.example.com',
   timeout: 5000,
@@ -88,7 +88,7 @@ const apiConfig = {
 Example of a code group:
 
 <CodeGroup>
-```javascript Node.js
+```typescript Node.js
 const response = await fetch('/api/endpoint', {
   headers: { Authorization: `Bearer ${apiKey}` }
 });
@@ -196,7 +196,7 @@ Example of accordion groups:
 </Accordion>
 
 <Accordion title="Advanced configuration">
-  ```javascript
+  ```typescript
   const config = {
     performance: { cache: true, timeout: 30000 },
     security: { encryption: 'AES-256' }

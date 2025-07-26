@@ -19,7 +19,7 @@ First, install the Weights SDK and set up your authentication:
 npm install @weights-ai/sdk
 ```
 
-```javascript
+```typescript
 import Weights from "@weights-ai/sdk";
 
 const client = new Weights({
@@ -42,23 +42,17 @@ Before training an RVC model, you need to prepare and upload your training audio
 
 ### Example Audio Preparation
 
-```javascript
+```typescript
 // Example: Prepare training audio files
 const trainingAudioFiles = [
   {
     url: "https://example.com/audio1.mp3",
-    name: "Sample 1 - Clear speech",
-    length: 15.5, // Duration in seconds
   },
   {
     url: "https://example.com/audio2.mp3",
-    name: "Sample 2 - Singing voice",
-    length: 22.3,
   },
   {
     url: "https://example.com/audio3.mp3",
-    name: "Sample 3 - Different pitch",
-    length: 18.7,
   },
   // ... more audio files
 ];
@@ -70,7 +64,7 @@ console.log(`Prepared ${trainingAudioFiles.length} training audio files`);
 
 Start the training process by creating an RVC model:
 
-```javascript
+```typescript
 const rvcModel = await client.rvcModels.training.create({
   name: "My Custom Voice",
   description: "A voice model trained on my singing samples",
@@ -95,7 +89,7 @@ console.log(`Training job ID: ${rvcModel.id}`);
 
 RVC training is asynchronous and can take several hours. Poll the status to track progress:
 
-```javascript
+```typescript
 async function checkTrainingStatus(modelId) {
   const status = await client.rvcModels.training.status(modelId);
 
@@ -145,7 +139,7 @@ const status = await checkTrainingStatus(rvcModel.id);
 
 Once training is complete, you can retrieve your model details:
 
-```javascript
+```typescript
 const model = await client.rvcModels.training.retrieve(rvcModel.id);
 
 if (model) {
@@ -164,7 +158,7 @@ if (model) {
 
 Once you have a trained model (or use a public one), you can create voice covers:
 
-```javascript
+```typescript
 const cover = await client.covers.create({
   rvcModelId: rvcModel.id, // or use a public model ID
   inputUrl: "https://example.com/song-to-cover.mp3",
@@ -194,7 +188,7 @@ console.log(`Cover created with ID: ${cover.id}`);
 
 Cover generation is asynchronous. Poll the status to track progress:
 
-```javascript
+```typescript
 async function checkCoverStatus(coverId) {
   const cover = await client.covers.retrieve(coverId);
 
@@ -233,7 +227,7 @@ const coverResult = await checkCoverStatus(cover.id);
 
 View all your RVC models and training jobs:
 
-```javascript
+```typescript
 const myModels = await client.rvcModels.list({
   limit: 25,
 });
@@ -253,7 +247,7 @@ myModels.items.forEach((item) => {
 
 You can search and use public RVC models created by other users:
 
-```javascript
+```typescript
 const publicModels = await client.rvcModels.search({
   search: "singer voice",
   limit: 10,
@@ -271,7 +265,7 @@ publicModels.models.forEach((model) => {
 
 You can also upload existing RVC models:
 
-```javascript
+```typescript
 const uploadedModel = await client.rvcModels.upload({
   url: "https://example.com/my-rvc-model.pth",
   title: "My Pre-trained Model",
@@ -285,7 +279,7 @@ console.log(`Model uploaded with ID: ${uploadedModel.id}`);
 
 For advanced users, you can download your trained RVC model files:
 
-```javascript
+```typescript
 const downloadInfo = await client.rvcModels.retrieveDownloadURL(rvcModel.id);
 
 if (downloadInfo.downloadUrl) {
@@ -315,7 +309,7 @@ if (downloadInfo.downloadUrl) {
 
 ### Model Management
 
-```javascript
+```typescript
 // Example: Training a singing voice model
 const singingModel = await client.rvcModels.training.create({
   name: "My Singing Voice",
@@ -337,7 +331,7 @@ const speakingModel = await client.rvcModels.training.create({
 
 Here's a complete example that trains an RVC model and creates a cover:
 
-```javascript
+```typescript
 import Weights from "@weights-ai/sdk";
 
 const client = new Weights({
@@ -350,18 +344,12 @@ async function trainAndCreateCover() {
     const trainingAudio = [
       {
         url: "https://example.com/sample1.mp3",
-        name: "Sample 1",
-        length: 15.2,
       },
       {
         url: "https://example.com/sample2.mp3",
-        name: "Sample 2",
-        length: 18.7,
       },
       {
         url: "https://example.com/sample3.mp3",
-        name: "Sample 3",
-        length: 12.9,
       },
     ];
 
@@ -381,6 +369,9 @@ async function trainAndCreateCover() {
       await new Promise((resolve) => setTimeout(resolve, 600000)); // Wait 10 minutes
 
       const status = await client.rvcModels.training.status(rvcModel.id);
+      if(!status){
+        throw new Error("Training status not found");
+      }
       console.log(`Training status: ${status.status}`);
 
       if (status.status === "SUCCEEDED") {
@@ -410,6 +401,9 @@ async function trainAndCreateCover() {
       await new Promise((resolve) => setTimeout(resolve, 30000)); // Wait 30 seconds
 
       const coverStatus = await client.covers.retrieve(cover.id);
+      if(!coverStatus){
+        throw new Error("Cover not found");
+      }
       console.log(`Cover status: ${coverStatus.status}`);
 
       if (coverStatus.status === "SUCCEEDED") {

@@ -19,7 +19,7 @@ First, install the Weights SDK and set up your authentication:
 npm install @weights-ai/sdk
 ```
 
-```javascript
+```typescript
 import Weights from "@weights-ai/sdk";
 
 const client = new Weights({
@@ -41,7 +41,7 @@ Before training a LoRA model, you need to prepare and upload your training image
 
 ### Example Image Preparation
 
-```javascript
+```typescript
 // Example: Prepare training images
 const trainingImages = [
   {
@@ -66,12 +66,11 @@ console.log(`Prepared ${trainingImages.length} training images`);
 
 Start the training process by creating a LoRA model:
 
-```javascript
+```typescript
 const loraModel = await client.imageLoraModels.create({
   name: "My Custom Style",
   images: trainingImages,
   triggerWord: "my_style",
-  validationPrompt: "A portrait in my custom style",
 });
 
 console.log(`LoRA model created with ID: ${loraModel.id}`);
@@ -83,14 +82,13 @@ console.log(`Training job ID: ${loraModel.trainingJobId}`);
 - **name** (required): Name for your LoRA model
 - **images** (required): Array of image objects with URLs and descriptions
 - **triggerWord** (optional): Custom trigger word to activate the style
-- **validationPrompt** (optional): Prompt to test the model during training
 
 ## Step 4: Monitor Training Progress
 
 LoRA training is asynchronous and can take several hours. Poll the status to track progress:
 
-```javascript
-async function checkTrainingStatus(modelId) {
+```typescript
+async function checkTrainingStatus(modelId:string) {
   const status = await client.imageLoraModels.retrieveStatus(modelId);
 
   if (!status) {
@@ -137,7 +135,7 @@ const status = await checkTrainingStatus(loraModel.id);
 
 Once training is complete, you can retrieve your model details:
 
-```javascript
+```typescript
 const model = await client.imageLoraModels.retrieve(loraModel.id);
 
 if (model) {
@@ -155,11 +153,11 @@ if (model) {
 
 Once training is complete, you can use your LoRA model in image generation:
 
-```javascript
+```typescript
 // Generate an image using your custom LoRA model
 const imageWithLora = await client.images.create({
   prompt: "A portrait of a woman in my_style",
-  styleId: loraModel.id,
+  loraIds: [loraModel.id],
   dimensions: "PORTRAIT",
   numImages: 1,
 });
@@ -171,7 +169,7 @@ console.log(`Image generated with custom LoRA: ${imageWithLora.id}`);
 
 View all your trained LoRA models:
 
-```javascript
+```typescript
 const myModels = await client.imageLoraModels.list({
   limit: 25,
 });
@@ -191,7 +189,7 @@ myModels.models.forEach((model) => {
 
 You can also search and use public LoRA models created by other users:
 
-```javascript
+```typescript
 const publicModels = await client.imageLoraModels.search({
   search: "anime style",
   limit: 10,
@@ -213,7 +211,7 @@ For advanced users, you can download your trained LoRA model files. This is usef
 - Sharing models with other users
 - Local development and testing
 
-```javascript
+```typescript
 // Get a download URL for your trained LoRA model
 const downloadInfo = await client.imageLoraModels.retrieveDownloadURL(
   loraModel.id
@@ -235,8 +233,8 @@ if (downloadInfo.downloadUrl) {
 
 Here's a more robust example with proper error handling:
 
-```javascript
-async function downloadLoraModel(modelId) {
+```typescript
+async function downloadLoraModel(modelId:string) {
   try {
     // First, check if the model is ready
     const model = await client.imageLoraModels.retrieve(modelId);
@@ -294,7 +292,7 @@ if (downloadUrl) {
 
 You can also download multiple models at once:
 
-```javascript
+```typescript
 async function downloadAllMyModels() {
   try {
     // Get all your models
@@ -363,7 +361,7 @@ const allDownloads = await downloadAllMyModels();
 
 ### Training Tips
 
-```javascript
+```typescript
 // Example: Training a character model
 const characterModel = await client.imageLoraModels.create({
   name: "My OC Character - Luna",
@@ -383,7 +381,7 @@ const styleModel = await client.imageLoraModels.create({
 
 Here's a complete example that trains a LoRA model and uses it:
 
-```javascript
+```typescript
 import Weights from "@weights-ai/sdk";
 
 const client = new Weights({
@@ -417,6 +415,9 @@ async function trainAndUseLora() {
       await new Promise((resolve) => setTimeout(resolve, 300000)); // Wait 5 minutes
 
       const status = await client.imageLoraModels.retrieveStatus(loraModel.id);
+      if(!status){
+        throw new Error("Training status not found");
+      }
       console.log(`Training status: ${status.status}`);
 
       if (status.status === "SUCCEEDED") {
@@ -432,7 +433,7 @@ async function trainAndUseLora() {
     console.log("Generating image with trained model...");
     const image = await client.images.create({
       prompt: "A beautiful portrait in my_portrait style",
-      styleId: loraModel.id,
+      loraIds: [loraModel.id],
       dimensions: "PORTRAIT",
     });
 

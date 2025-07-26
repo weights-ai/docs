@@ -19,7 +19,7 @@ First, install the Weights SDK and set up your authentication:
 npm install @weights-ai/sdk
 ```
 
-```javascript
+```typescript
 import Weights from "@weights-ai/sdk";
 
 const client = new Weights({
@@ -40,7 +40,7 @@ Before generating a song, you need to prepare your lyrics. The API accepts Engli
 
 ### Example Lyrics Preparation
 
-```javascript
+```typescript
 // Example: Prepare different types of lyrics
 const verseLyrics =
   "In the moonlight, shadows dance, Whispering secrets of romance, Every step we take together, Makes this moment last forever";
@@ -60,7 +60,7 @@ console.log(`Complete song length: ${completeSong.length} characters`);
 
 Start by creating a song generation job:
 
-```javascript
+```typescript
 const songJob = await client.songs.create({
   lyrics:
     "In the moonlight, shadows dance, Whispering secrets of romance, Every step we take together, Makes this moment last forever",
@@ -87,7 +87,7 @@ console.log(`Song job created with ID: ${songJob.id}`);
 
 Song generation is asynchronous and can take several minutes. Poll the status to track progress:
 
-```javascript
+```typescript
 async function checkSongStatus(jobId) {
   const song = await client.songs.retrieve(jobId);
 
@@ -136,7 +136,7 @@ const song = await checkSongStatus(songJob.id);
 
 Once the status is `SUCCEEDED`, your song is ready for download:
 
-```javascript
+```typescript
 if (song.status === "SUCCEEDED") {
   console.log("Your song is ready!");
   console.log("Download URL:", song.outputUrl);
@@ -156,7 +156,7 @@ if (song.status === "SUCCEEDED") {
 
 View all your previous song generation jobs:
 
-```javascript
+```typescript
 const allSongs = await client.songs.list({
   limit: 25,
 });
@@ -179,7 +179,7 @@ allSongs.songs.forEach((song) => {
 
 Experiment with various section types for different musical styles:
 
-```javascript
+```typescript
 // Generate a verse
 const verseSong = await client.songs.create({
   lyrics: "Walking through the city lights, Feeling free on summer nights",
@@ -210,7 +210,7 @@ const enhancedSong = await client.songs.create({
 
 You can search through your generated songs:
 
-```javascript
+```typescript
 const searchResults = await client.songs.list({
   search: "moonlight",
   limit: 10,
@@ -245,7 +245,7 @@ searchResults.songs.forEach((song) => {
 
 ### Error Handling
 
-```javascript
+```typescript
 try {
   const songJob = await client.songs.create({
     lyrics: "Your lyrics here",
@@ -265,7 +265,7 @@ try {
 
 Here's a complete example that creates a song and waits for completion:
 
-```javascript
+```typescript
 import Weights from "@weights-ai/sdk";
 
 const client = new Weights({

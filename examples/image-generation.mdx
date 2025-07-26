@@ -10,7 +10,7 @@ First, install the Weights SDK and set up your authentication:
 npm install @weights-ai/sdk
 ```
 
-```javascript
+```typescript
 import Weights from "@weights-ai/sdk";
 
 const client = new Weights({
@@ -22,7 +22,7 @@ const client = new Weights({
 
 Start by creating a simple image generation job:
 
-```javascript
+```typescript
 const imageJob = await client.images.create({
   prompt: "A serene mountain landscape at sunset with golden clouds",
   dimensions: "LANDSCAPE",
@@ -38,16 +38,14 @@ console.log(`Status: ${imageJob.status}`);
 - **prompt** (required): Your text description of the image you want to generate
 - **dimensions** (optional): Choose from `SQUARE`, `PORTRAIT`, or `LANDSCAPE` (default: `SQUARE`)
 - **numImages** (optional): Number of images to generate (1-4, default: 1)
-- **styleId** (optional): ID of a custom style model
-- **secondStyleId** (optional): Secondary style model ID
-- **tertiaryStyleId** (optional): Tertiary style model ID
+- **loraIds** (optional): Array of LoRA model IDs to use for the image generation
 
 ## Step 3: Check Job Status
 
 Image generation can be asynchronous. Poll the status to know when your image is ready:
 
-```javascript
-async function checkImageStatus(jobId) {
+```typescript
+async function checkImageStatus(jobId:string) {
   const job = await client.images.retrieve(jobId);
 
   console.log(`Status: ${job.status}`);
@@ -88,7 +86,7 @@ const job = await checkImageStatus(imageJob.id);
 
 Once the status is `SUCCEEDED`, your images are ready:
 
-```javascript
+```typescript
 if (job.status === "SUCCEEDED") {
   console.log("Your images are ready!");
 
@@ -102,7 +100,7 @@ if (job.status === "SUCCEEDED") {
 
 View all your previous image generation jobs:
 
-```javascript
+```typescript
 const allImages = await client.images.list({
   limit: 25,
 });
@@ -123,10 +121,10 @@ allImages.jobs.forEach((job) => {
 
 You can use trained LoRA models for specific styles:
 
-```javascript
+```typescript
 const customImage = await client.images.create({
   prompt: "A portrait of a woman in anime style",
-  styleId: "your-lora-model-id",
+  loraIds: [loraModel.id],
   dimensions: "PORTRAIT",
   numImages: 1,
 });
@@ -136,7 +134,7 @@ const customImage = await client.images.create({
 
 Generate multiple images at once:
 
-```javascript
+```typescript
 const batchJob = await client.images.create({
   prompt: "A futuristic city skyline at night",
   numImages: 4,
@@ -155,7 +153,7 @@ const batchJob = await client.images.create({
 
 ### Error Handling
 
-```javascript
+```typescript
 try {
   const imageJob = await client.images.create({
     prompt: "Your prompt here",
@@ -175,14 +173,14 @@ try {
 
 Here's a complete example that creates an image and waits for completion:
 
-```javascript
+```typescript
 import Weights from "@weights-ai/sdk";
 
 const client = new Weights({
   bearerToken: "your-api-key-here",
 });
 
-async function generateImage(prompt) {
+async function generateImage(prompt: string) {
   try {
     // Create the image generation job
     console.log("Creating image generation job...");
