@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: Weights API
   description: www.weights.com OpenAPI schema
@@ -6,7 +6,7 @@ info:
 servers:
   - url: https://www.weights.com/api/external
 externalDocs:
-  url: https://weights.readme.io/reference/introduction
+  url: https://docs.weights.com
 paths:
   /images/create:
     post:
@@ -17,6 +17,7 @@ paths:
         - Flux.Dev Images
       security:
         - Authorization: []
+      parameters: []
       requestBody:
         required: true
         content:
@@ -25,27 +26,37 @@ paths:
               type: object
               properties:
                 prompt:
+                  description: Text description of the image to generate
+                  example: A beautiful sunset over mountains with a lake in the foreground
                   type: string
                   minLength: 1
                   maxLength: 1000
-                styleId:
-                  type: string
-                secondStyleId:
-                  type: string
-                tertiaryStyleId:
-                  type: string
+                loraIds:
+                  description: Lora IDs to apply to the image generation - up to 3 Lora models can be applied
+                  example: cmcz8do7y00fw0dnd3t7906sy
+                  default: []
+                  minItems: 0
+                  maxItems: 3
+                  type: array
+                  items:
+                    type: string
                 numImages:
+                  description: Number of images to generate (1-4)
+                  example: 1
+                  default: 1
                   type: number
                   minimum: 1
                   maximum: 4
-                  default: 1
                 dimensions:
+                  description: Aspect ratio of the generated image
+                  examples:
+                    - SQUARE
+                  default: SQUARE
                   type: string
                   enum:
                     - SQUARE
                     - PORTRAIT
                     - LANDSCAPE
-                  default: SQUARE
               required:
                 - prompt
       responses:
@@ -57,8 +68,12 @@ paths:
                 type: object
                 properties:
                   id:
+                    description: Unique identifier for the visual creation job
+                    example: visual_123456789
                     type: string
                   status:
+                    description: Current status of the visual creation job
+                    example: SUCCEEDED
                     type: string
                     enum:
                       - QUEUED
@@ -68,8 +83,12 @@ paths:
                       - SUCCEEDED
                       - CANCELED
                   prompt:
+                    description: Text prompt used for the visual creation
+                    example: A beautiful sunset over mountains
                     type: string
                   type:
+                    description: Type of visual creation job
+                    example: IMAGE_GENERATION
                     type: string
                     enum:
                       - IMAGE
@@ -79,43 +98,70 @@ paths:
                       - INPAINT
                       - UPSCALE
                   numImages:
+                    description: Number of images generated
+                    example: 1
                     type: number
                   dimensions:
+                    description: Dimensions of the generated images
+                    example: SQUARE
                     type: string
                     enum:
                       - SQUARE
                       - PORTRAIT
                       - LANDSCAPE
                   createdAt:
+                    description: Timestamp when the job was created
+                    example: '2024-01-15T10:30:00Z'
                     type: string
                   updatedAt:
+                    description: Timestamp when the job was last updated
+                    example: '2024-01-15T10:35:00Z'
                     type: string
                   outputUrls:
+                    description: Array of URLs to the generated images
+                    example:
+                      - https://storage.example.com/images/generated_1.jpg
                     type: array
                     items:
                       type: string
                   lora:
-                    type: object
-                    nullable: true
-                    properties:
-                      id:
-                        type: string
-                      name:
-                        type: string
-                    required:
-                      - id
-                      - name
+                    description: Primary LoRA model used for generation
+                    example: null
+                    anyOf:
+                      - type: object
+                        properties:
+                          id:
+                            description: Unique identifier for the primary LoRA model
+                            example: lora_123456789
+                            type: string
+                          name:
+                            description: Name of the primary LoRA model
+                            example: My Custom Style
+                            type: string
+                        required:
+                          - id
+                          - name
+                        additionalProperties: false
+                      - type: 'null'
                   secondaryLora:
-                    type: object
-                    nullable: true
-                    properties:
-                      id:
-                        type: string
-                      name:
-                        type: string
-                    required:
-                      - id
-                      - name
+                    description: Secondary LoRA model used for generation
+                    example: null
+                    anyOf:
+                      - type: object
+                        properties:
+                          id:
+                            description: Unique identifier for the secondary LoRA model
+                            example: lora_987654321
+                            type: string
+                          name:
+                            description: Name of the secondary LoRA model
+                            example: Another Style
+                            type: string
+                        required:
+                          - id
+                          - name
+                        additionalProperties: false
+                      - type: 'null'
                 required:
                   - id
                   - status
@@ -125,8 +171,10 @@ paths:
                   - dimensions
                   - createdAt
                   - updatedAt
+                  - outputUrls
                   - lora
                   - secondaryLora
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -159,7 +207,9 @@ paths:
             bearerToken: 'My Bearer Token',
           });
 
-          const image = await client.images.create({ prompt: 'x' });
+          const image = await client.images.create({
+            prompt: 'A beautiful sunset over mountains with a lake in the foreground',
+          });
 
           console.log(image.id);
       x-readme:
@@ -172,7 +222,9 @@ paths:
                 bearerToken: 'My Bearer Token',
               });
 
-              const image = await client.images.create({ prompt: 'x' });
+              const image = await client.images.create({
+                prompt: 'A beautiful sunset over mountains with a lake in the foreground',
+              });
 
               console.log(image.id);
       x-codeSamples:
@@ -184,7 +236,9 @@ paths:
               bearerToken: 'My Bearer Token',
             });
 
-            const image = await client.images.create({ prompt: 'x' });
+            const image = await client.images.create({
+              prompt: 'A beautiful sunset over mountains with a lake in the foreground',
+            });
 
             console.log(image.id);
   /images/{id}:
@@ -211,8 +265,12 @@ paths:
                 type: object
                 properties:
                   id:
+                    description: Unique identifier for the visual creation job
+                    example: visual_123456789
                     type: string
                   status:
+                    description: Current status of the visual creation job
+                    example: SUCCEEDED
                     type: string
                     enum:
                       - QUEUED
@@ -222,8 +280,12 @@ paths:
                       - SUCCEEDED
                       - CANCELED
                   prompt:
+                    description: Text prompt used for the visual creation
+                    example: A beautiful sunset over mountains
                     type: string
                   type:
+                    description: Type of visual creation job
+                    example: IMAGE_GENERATION
                     type: string
                     enum:
                       - IMAGE
@@ -233,43 +295,70 @@ paths:
                       - INPAINT
                       - UPSCALE
                   numImages:
+                    description: Number of images generated
+                    example: 1
                     type: number
                   dimensions:
+                    description: Dimensions of the generated images
+                    example: SQUARE
                     type: string
                     enum:
                       - SQUARE
                       - PORTRAIT
                       - LANDSCAPE
                   createdAt:
+                    description: Timestamp when the job was created
+                    example: '2024-01-15T10:30:00Z'
                     type: string
                   updatedAt:
+                    description: Timestamp when the job was last updated
+                    example: '2024-01-15T10:35:00Z'
                     type: string
                   outputUrls:
+                    description: Array of URLs to the generated images
+                    example:
+                      - https://storage.example.com/images/generated_1.jpg
                     type: array
                     items:
                       type: string
                   lora:
-                    type: object
-                    nullable: true
-                    properties:
-                      id:
-                        type: string
-                      name:
-                        type: string
-                    required:
-                      - id
-                      - name
+                    description: Primary LoRA model used for generation
+                    example: null
+                    anyOf:
+                      - type: object
+                        properties:
+                          id:
+                            description: Unique identifier for the primary LoRA model
+                            example: lora_123456789
+                            type: string
+                          name:
+                            description: Name of the primary LoRA model
+                            example: My Custom Style
+                            type: string
+                        required:
+                          - id
+                          - name
+                        additionalProperties: false
+                      - type: 'null'
                   secondaryLora:
-                    type: object
-                    nullable: true
-                    properties:
-                      id:
-                        type: string
-                      name:
-                        type: string
-                    required:
-                      - id
-                      - name
+                    description: Secondary LoRA model used for generation
+                    example: null
+                    anyOf:
+                      - type: object
+                        properties:
+                          id:
+                            description: Unique identifier for the secondary LoRA model
+                            example: lora_987654321
+                            type: string
+                          name:
+                            description: Name of the secondary LoRA model
+                            example: Another Style
+                            type: string
+                        required:
+                          - id
+                          - name
+                        additionalProperties: false
+                      - type: 'null'
                 required:
                   - id
                   - status
@@ -279,8 +368,10 @@ paths:
                   - dimensions
                   - createdAt
                   - updatedAt
+                  - outputUrls
                   - lora
                   - secondaryLora
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -356,6 +447,7 @@ paths:
         - Video Generation
       security:
         - Authorization: []
+      parameters: []
       requestBody:
         required: true
         content:
@@ -364,10 +456,14 @@ paths:
               type: object
               properties:
                 prompt:
+                  description: Text description of the video to generate
+                  example: A flowing river with leaves floating downstream
                   type: string
                   minLength: 1
                   maxLength: 1000
                 inputImageUrl:
+                  description: URL to the input image to animate into a video
+                  example: https://storage.example.com/input/river.jpg
                   type: string
                   format: uri
               required:
@@ -385,6 +481,7 @@ paths:
                     type: string
                 required:
                   - id
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -417,7 +514,10 @@ paths:
             bearerToken: 'My Bearer Token',
           });
 
-          const video = await client.videos.create({ inputImageUrl: 'https://example.com', prompt: 'x' });
+          const video = await client.videos.create({
+            inputImageUrl: 'https://storage.example.com/input/river.jpg',
+            prompt: 'A flowing river with leaves floating downstream',
+          });
 
           console.log(video.id);
       x-readme:
@@ -430,7 +530,10 @@ paths:
                 bearerToken: 'My Bearer Token',
               });
 
-              const video = await client.videos.create({ inputImageUrl: 'https://example.com', prompt: 'x' });
+              const video = await client.videos.create({
+                inputImageUrl: 'https://storage.example.com/input/river.jpg',
+                prompt: 'A flowing river with leaves floating downstream',
+              });
 
               console.log(video.id);
       x-codeSamples:
@@ -442,7 +545,10 @@ paths:
               bearerToken: 'My Bearer Token',
             });
 
-            const video = await client.videos.create({ inputImageUrl: 'https://example.com', prompt: 'x' });
+            const video = await client.videos.create({
+              inputImageUrl: 'https://storage.example.com/input/river.jpg',
+              prompt: 'A flowing river with leaves floating downstream',
+            });
 
             console.log(video.id);
   /images:
@@ -460,15 +566,22 @@ paths:
         - in: query
           name: limit
           schema:
+            default: 25
+            description: Number of items to return per page
+            example: 25
             type: number
             minimum: 1
             maximum: 50
-            default: 25
         - in: query
           name: cursor
           schema:
-            type: string
-            nullable: true
+            anyOf:
+              - description: >-
+                  Cursor for pagination to get the next page of results - this is the last item's ID from the
+                  previous page
+                example: cmcz89fci00zr0dlt68klunpf
+                type: string
+              - type: 'null'
       responses:
         '200':
           description: Returns a paginated list of visual creation jobs for the authenticated user.
@@ -521,8 +634,9 @@ paths:
                           items:
                             type: string
                         queuePosition:
-                          type: number
-                          nullable: true
+                          anyOf:
+                            - type: number
+                            - type: 'null'
                       required:
                         - id
                         - status
@@ -532,8 +646,10 @@ paths:
                         - dimensions
                         - createdAt
                         - updatedAt
+                      additionalProperties: false
                 required:
                   - jobs
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -611,6 +727,7 @@ paths:
         - Flux.Dev Loras
       security:
         - Authorization: []
+      parameters: []
       requestBody:
         required: true
         content:
@@ -619,26 +736,34 @@ paths:
               type: object
               properties:
                 name:
+                  description: Name of the LoRA model
+                  example: My Custom Style
                   type: string
                   minLength: 1
                   maxLength: 100
                 images:
+                  description: Array of training images (5-30 images required)
+                  example: []
+                  minItems: 5
+                  maxItems: 30
                   type: array
                   items:
                     type: object
                     properties:
                       url:
+                        description: URL to the training image
+                        example: https://example.com/image1.jpg
                         type: string
                         format: uri
                       description:
+                        description: Description of the training image
+                        example: Portrait with specific lighting
                         type: string
                     required:
                       - url
-                  minItems: 5
-                  maxItems: 30
                 triggerWord:
-                  type: string
-                validationPrompt:
+                  description: Trigger word to activate the LoRA model
+                  example: my_style
                   type: string
               required:
                 - name
@@ -658,6 +783,7 @@ paths:
                 required:
                   - id
                   - trainingJobId
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -692,13 +818,13 @@ paths:
 
           const imageLoraModel = await client.imageLoraModels.create({
             images: [
-              { url: 'https://example.com' },
-              { url: 'https://example.com' },
-              { url: 'https://example.com' },
-              { url: 'https://example.com' },
-              { url: 'https://example.com' },
+              { url: 'https://example.com/image1.jpg' },
+              { url: 'https://example.com/image1.jpg' },
+              { url: 'https://example.com/image1.jpg' },
+              { url: 'https://example.com/image1.jpg' },
+              { url: 'https://example.com/image1.jpg' },
             ],
-            name: 'x',
+            name: 'My Custom Style',
           });
 
           console.log(imageLoraModel.id);
@@ -714,13 +840,13 @@ paths:
 
               const imageLoraModel = await client.imageLoraModels.create({
                 images: [
-                  { url: 'https://example.com' },
-                  { url: 'https://example.com' },
-                  { url: 'https://example.com' },
-                  { url: 'https://example.com' },
-                  { url: 'https://example.com' },
+                  { url: 'https://example.com/image1.jpg' },
+                  { url: 'https://example.com/image1.jpg' },
+                  { url: 'https://example.com/image1.jpg' },
+                  { url: 'https://example.com/image1.jpg' },
+                  { url: 'https://example.com/image1.jpg' },
                 ],
-                name: 'x',
+                name: 'My Custom Style',
               });
 
               console.log(imageLoraModel.id);
@@ -735,13 +861,13 @@ paths:
 
             const imageLoraModel = await client.imageLoraModels.create({
               images: [
-                { url: 'https://example.com' },
-                { url: 'https://example.com' },
-                { url: 'https://example.com' },
-                { url: 'https://example.com' },
-                { url: 'https://example.com' },
+                { url: 'https://example.com/image1.jpg' },
+                { url: 'https://example.com/image1.jpg' },
+                { url: 'https://example.com/image1.jpg' },
+                { url: 'https://example.com/image1.jpg' },
+                { url: 'https://example.com/image1.jpg' },
               ],
-              name: 'x',
+              name: 'My Custom Style',
             });
 
             console.log(imageLoraModel.id);
@@ -768,70 +894,113 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                nullable: true
-                properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  description:
-                    type: string
-                    nullable: true
-                  triggers:
-                    type: array
-                    items:
-                      type: string
-                  image:
-                    type: string
-                    nullable: true
-                  blurDataUrl:
-                    type: string
-                    nullable: true
-                  isNSFW:
-                    type: boolean
-                  isDeleted:
-                    type: boolean
-                  createdAt:
-                    type: string
-                  userId:
-                    type: string
-                  trainingJob:
-                    type: object
-                    nullable: true
+                anyOf:
+                  - type: object
                     properties:
                       id:
+                        description: Unique identifier for the LoRA model
+                        example: lora_123456789
                         type: string
-                      status:
+                      name:
+                        description: Name of the LoRA model
+                        example: My Custom Style
                         type: string
-                        enum:
-                          - QUEUED
-                          - PENDING_WORKER
-                          - PROCESSING
-                          - ERRORED
-                          - SUCCEEDED
-                          - CANCELED
+                      description:
+                        description: Description of the LoRA model
+                        example: A custom style trained on my artwork
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      triggers:
+                        description: Array of trigger words for the LoRA model
+                        example:
+                          - my_style
+                          - custom_art
+                        type: array
+                        items:
+                          type: string
+                      image:
+                        description: URL to the preview image of the LoRA model
+                        example: https://storage.example.com/lora_preview.jpg
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      blurDataUrl:
+                        description: Blurred data URL for the preview image
+                        example: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      isNSFW:
+                        description: Whether the model contains NSFW content
+                        example: false
+                        type: boolean
+                      isDeleted:
+                        description: Whether the model has been deleted
+                        example: false
+                        type: boolean
                       createdAt:
+                        description: Timestamp when the LoRA model was created
+                        example: '2024-01-15T10:30:00Z'
                         type: string
-                      shortStatusText:
+                      userId:
+                        description: ID of the user who created the LoRA model
+                        example: user_123456789
                         type: string
-                        nullable: true
-                      initialQueuePosition:
-                        type: number
-                        nullable: true
+                      trainingJob:
+                        description: Information about the most recent training job
+                        example: null
+                        anyOf:
+                          - type: object
+                            properties:
+                              id:
+                                description: Unique identifier for the training job
+                                example: training_123456789
+                                type: string
+                              status:
+                                description: Current status of the training job
+                                example: SUCCEEDED
+                                type: string
+                                enum:
+                                  - QUEUED
+                                  - PENDING_WORKER
+                                  - PROCESSING
+                                  - ERRORED
+                                  - SUCCEEDED
+                                  - CANCELED
+                              createdAt:
+                                description: Timestamp when the training job was created
+                                example: '2024-01-15T10:30:00Z'
+                                type: string
+                              shortStatusText:
+                                description: Brief description of the current training status
+                                example: Training completed successfully
+                                anyOf:
+                                  - type: string
+                                  - type: 'null'
+                              initialQueuePosition:
+                                description: Initial position in the training queue
+                                example: 10
+                                anyOf:
+                                  - type: number
+                                  - type: 'null'
+                            required:
+                              - id
+                              - status
+                              - createdAt
+                              - initialQueuePosition
+                            additionalProperties: false
+                          - type: 'null'
                     required:
                       - id
-                      - status
+                      - name
+                      - triggers
+                      - isNSFW
+                      - isDeleted
                       - createdAt
-                      - initialQueuePosition
-                required:
-                  - id
-                  - name
-                  - triggers
-                  - isNSFW
-                  - isDeleted
-                  - createdAt
-                  - userId
+                      - userId
+                    additionalProperties: false
+                  - type: 'null'
         '400':
           description: Invalid input data
           content:
@@ -921,34 +1090,38 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                nullable: true
-                properties:
-                  id:
-                    type: string
-                  status:
-                    type: string
-                    enum:
-                      - QUEUED
-                      - PENDING_WORKER
-                      - PROCESSING
-                      - ERRORED
-                      - SUCCEEDED
-                      - CANCELED
-                  shortStatusText:
-                    type: string
-                    nullable: true
-                  queuePosition:
-                    type: number
-                    nullable: true
-                  createdAt:
-                    type: string
-                required:
-                  - id
-                  - status
-                  - shortStatusText
-                  - queuePosition
-                  - createdAt
+                anyOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+                        enum:
+                          - QUEUED
+                          - PENDING_WORKER
+                          - PROCESSING
+                          - ERRORED
+                          - SUCCEEDED
+                          - CANCELED
+                      shortStatusText:
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      queuePosition:
+                        anyOf:
+                          - type: number
+                          - type: 'null'
+                      createdAt:
+                        type: string
+                    required:
+                      - id
+                      - status
+                      - shortStatusText
+                      - queuePosition
+                      - createdAt
+                    additionalProperties: false
+                  - type: 'null'
         '400':
           description: Invalid input data
           content:
@@ -1034,15 +1207,22 @@ paths:
         - in: query
           name: limit
           schema:
+            default: 25
+            description: Number of items to return per page
+            example: 25
             type: number
             minimum: 1
             maximum: 50
-            default: 25
         - in: query
           name: cursor
           schema:
-            type: string
-            nullable: true
+            anyOf:
+              - description: >-
+                  Cursor for pagination to get the next page of results - this is the last item's ID from the
+                  previous page
+                example: cmcz89fci00zr0dlt68klunpf
+                type: string
+              - type: 'null'
       responses:
         '200':
           description: Returns a paginated list of image LoRA models for the authenticated user.
@@ -1057,58 +1237,99 @@ paths:
                       type: object
                       properties:
                         id:
+                          description: Unique identifier for the LoRA model
+                          example: lora_123456789
                           type: string
                         name:
+                          description: Name of the LoRA model
+                          example: My Custom Style
                           type: string
                         description:
-                          type: string
-                          nullable: true
+                          description: Description of the LoRA model
+                          example: A custom style trained on my artwork
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         triggers:
+                          description: Array of trigger words for the LoRA model
+                          example:
+                            - my_style
+                            - custom_art
                           type: array
                           items:
                             type: string
                         image:
-                          type: string
-                          nullable: true
+                          description: URL to the preview image of the LoRA model
+                          example: https://storage.example.com/lora_preview.jpg
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         blurDataUrl:
-                          type: string
-                          nullable: true
+                          description: Blurred data URL for the preview image
+                          example: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         isNSFW:
+                          description: Whether the model contains NSFW content
+                          example: false
                           type: boolean
                         isDeleted:
+                          description: Whether the model has been deleted
+                          example: false
                           type: boolean
                         createdAt:
+                          description: Timestamp when the LoRA model was created
+                          example: '2024-01-15T10:30:00Z'
                           type: string
                         userId:
+                          description: ID of the user who created the LoRA model
+                          example: user_123456789
                           type: string
                         trainingJob:
-                          type: object
-                          nullable: true
-                          properties:
-                            id:
-                              type: string
-                            status:
-                              type: string
-                              enum:
-                                - QUEUED
-                                - PENDING_WORKER
-                                - PROCESSING
-                                - ERRORED
-                                - SUCCEEDED
-                                - CANCELED
-                            createdAt:
-                              type: string
-                            shortStatusText:
-                              type: string
-                              nullable: true
-                            initialQueuePosition:
-                              type: number
-                              nullable: true
-                          required:
-                            - id
-                            - status
-                            - createdAt
-                            - initialQueuePosition
+                          description: Information about the most recent training job
+                          example: null
+                          anyOf:
+                            - type: object
+                              properties:
+                                id:
+                                  description: Unique identifier for the training job
+                                  example: training_123456789
+                                  type: string
+                                status:
+                                  description: Current status of the training job
+                                  example: SUCCEEDED
+                                  type: string
+                                  enum:
+                                    - QUEUED
+                                    - PENDING_WORKER
+                                    - PROCESSING
+                                    - ERRORED
+                                    - SUCCEEDED
+                                    - CANCELED
+                                createdAt:
+                                  description: Timestamp when the training job was created
+                                  example: '2024-01-15T10:30:00Z'
+                                  type: string
+                                shortStatusText:
+                                  description: Brief description of the current training status
+                                  example: Training completed successfully
+                                  anyOf:
+                                    - type: string
+                                    - type: 'null'
+                                initialQueuePosition:
+                                  description: Initial position in the training queue
+                                  example: 10
+                                  anyOf:
+                                    - type: number
+                                    - type: 'null'
+                              required:
+                                - id
+                                - status
+                                - createdAt
+                                - initialQueuePosition
+                              additionalProperties: false
+                            - type: 'null'
                       required:
                         - id
                         - name
@@ -1117,8 +1338,10 @@ paths:
                         - isDeleted
                         - createdAt
                         - userId
+                      additionalProperties: false
                 required:
                   - models
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -1207,15 +1430,22 @@ paths:
         - in: query
           name: limit
           schema:
+            default: 25
+            description: Number of items to return per page
+            example: 25
             type: number
             minimum: 1
             maximum: 50
-            default: 25
         - in: query
           name: cursor
           schema:
-            type: string
-            nullable: true
+            anyOf:
+              - description: >-
+                  Cursor for pagination to get the next page of results - this is the last item's ID from the
+                  previous page
+                example: cmcz89fci00zr0dlt68klunpf
+                type: string
+              - type: 'null'
       responses:
         '200':
           description: Returns a paginated list of public image LoRA models matching the search criteria.
@@ -1230,58 +1460,99 @@ paths:
                       type: object
                       properties:
                         id:
+                          description: Unique identifier for the LoRA model
+                          example: lora_123456789
                           type: string
                         name:
+                          description: Name of the LoRA model
+                          example: My Custom Style
                           type: string
                         description:
-                          type: string
-                          nullable: true
+                          description: Description of the LoRA model
+                          example: A custom style trained on my artwork
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         triggers:
+                          description: Array of trigger words for the LoRA model
+                          example:
+                            - my_style
+                            - custom_art
                           type: array
                           items:
                             type: string
                         image:
-                          type: string
-                          nullable: true
+                          description: URL to the preview image of the LoRA model
+                          example: https://storage.example.com/lora_preview.jpg
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         blurDataUrl:
-                          type: string
-                          nullable: true
+                          description: Blurred data URL for the preview image
+                          example: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         isNSFW:
+                          description: Whether the model contains NSFW content
+                          example: false
                           type: boolean
                         isDeleted:
+                          description: Whether the model has been deleted
+                          example: false
                           type: boolean
                         createdAt:
+                          description: Timestamp when the LoRA model was created
+                          example: '2024-01-15T10:30:00Z'
                           type: string
                         userId:
+                          description: ID of the user who created the LoRA model
+                          example: user_123456789
                           type: string
                         trainingJob:
-                          type: object
-                          nullable: true
-                          properties:
-                            id:
-                              type: string
-                            status:
-                              type: string
-                              enum:
-                                - QUEUED
-                                - PENDING_WORKER
-                                - PROCESSING
-                                - ERRORED
-                                - SUCCEEDED
-                                - CANCELED
-                            createdAt:
-                              type: string
-                            shortStatusText:
-                              type: string
-                              nullable: true
-                            initialQueuePosition:
-                              type: number
-                              nullable: true
-                          required:
-                            - id
-                            - status
-                            - createdAt
-                            - initialQueuePosition
+                          description: Information about the most recent training job
+                          example: null
+                          anyOf:
+                            - type: object
+                              properties:
+                                id:
+                                  description: Unique identifier for the training job
+                                  example: training_123456789
+                                  type: string
+                                status:
+                                  description: Current status of the training job
+                                  example: SUCCEEDED
+                                  type: string
+                                  enum:
+                                    - QUEUED
+                                    - PENDING_WORKER
+                                    - PROCESSING
+                                    - ERRORED
+                                    - SUCCEEDED
+                                    - CANCELED
+                                createdAt:
+                                  description: Timestamp when the training job was created
+                                  example: '2024-01-15T10:30:00Z'
+                                  type: string
+                                shortStatusText:
+                                  description: Brief description of the current training status
+                                  example: Training completed successfully
+                                  anyOf:
+                                    - type: string
+                                    - type: 'null'
+                                initialQueuePosition:
+                                  description: Initial position in the training queue
+                                  example: 10
+                                  anyOf:
+                                    - type: number
+                                    - type: 'null'
+                              required:
+                                - id
+                                - status
+                                - createdAt
+                                - initialQueuePosition
+                              additionalProperties: false
+                            - type: 'null'
                       required:
                         - id
                         - name
@@ -1290,8 +1561,10 @@ paths:
                         - isDeleted
                         - createdAt
                         - userId
+                      additionalProperties: false
                 required:
                   - models
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -1384,10 +1657,12 @@ paths:
                 type: object
                 properties:
                   downloadUrl:
-                    type: string
-                    nullable: true
+                    anyOf:
+                      - type: string
+                      - type: 'null'
                 required:
                   - downloadUrl
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -1467,15 +1742,22 @@ paths:
         - in: query
           name: limit
           schema:
+            default: 25
+            description: Number of items to return per page
+            example: 25
             type: number
             minimum: 1
             maximum: 50
-            default: 25
         - in: query
           name: cursor
           schema:
-            type: string
-            nullable: true
+            anyOf:
+              - description: >-
+                  Cursor for pagination to get the next page of results - this is the last item's ID from the
+                  previous page
+                example: cmcz89fci00zr0dlt68klunpf
+                type: string
+              - type: 'null'
       responses:
         '200':
           description: Returns a paginated list of covers for the authenticated user.
@@ -1490,16 +1772,28 @@ paths:
                       type: object
                       properties:
                         id:
+                          description: Unique identifier for the cover job
+                          example: cover_123456789
                           type: string
                         createdAt:
+                          description: Timestamp when the cover job was created
+                          example: '2024-01-15T10:30:00Z'
                           type: string
                         outputUrl:
-                          type: string
-                          nullable: true
+                          description: URL to the generated cover audio file
+                          example: https://storage.example.com/covers/cover_123456789.mp3
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         inputFileName:
-                          type: string
-                          nullable: true
+                          description: Original filename of the input audio
+                          example: original_song.wav
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         status:
+                          description: Current status of the cover generation job
+                          example: SUCCEEDED
                           type: string
                           enum:
                             - QUEUED
@@ -1509,29 +1803,49 @@ paths:
                             - SUCCEEDED
                             - CANCELED
                         inputUrl:
-                          type: string
-                          nullable: true
+                          description: URL to the input audio file
+                          example: https://storage.example.com/input/original_song.wav
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         ttsText:
-                          type: string
-                          nullable: true
+                          description: Text-to-speech content if using TTS
+                          example: Hello world, this is a test
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         stemOnly:
-                          type: boolean
-                          nullable: true
+                          description: Whether to process only the vocal stem
+                          example: false
+                          anyOf:
+                            - type: boolean
+                            - type: 'null'
                         preStemmed:
-                          type: boolean
-                          nullable: true
+                          description: Whether the input audio is already stemmed
+                          example: false
+                          anyOf:
+                            - type: boolean
+                            - type: 'null'
                         pitch:
-                          type: number
-                          nullable: true
+                          description: Pitch adjustment value for the voice
+                          example: 0
+                          anyOf:
+                            - type: number
+                            - type: 'null'
                         queuePosition:
-                          type: number
-                          nullable: true
+                          description: Current position in the processing queue
+                          example: 3
+                          anyOf:
+                            - type: number
+                            - type: 'null'
                       required:
                         - id
                         - createdAt
                         - status
+                      additionalProperties: false
                 required:
                   - covers
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -1621,50 +1935,82 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                nullable: true
-                properties:
-                  id:
-                    type: string
-                  createdAt:
-                    type: string
-                  outputUrl:
-                    type: string
-                    nullable: true
-                  inputFileName:
-                    type: string
-                    nullable: true
-                  status:
-                    type: string
-                    enum:
-                      - QUEUED
-                      - PENDING_WORKER
-                      - PROCESSING
-                      - ERRORED
-                      - SUCCEEDED
-                      - CANCELED
-                  inputUrl:
-                    type: string
-                    nullable: true
-                  ttsText:
-                    type: string
-                    nullable: true
-                  stemOnly:
-                    type: boolean
-                    nullable: true
-                  preStemmed:
-                    type: boolean
-                    nullable: true
-                  pitch:
-                    type: number
-                    nullable: true
-                  queuePosition:
-                    type: number
-                    nullable: true
-                required:
-                  - id
-                  - createdAt
-                  - status
+                anyOf:
+                  - type: object
+                    properties:
+                      id:
+                        description: Unique identifier for the cover job
+                        example: cover_123456789
+                        type: string
+                      createdAt:
+                        description: Timestamp when the cover job was created
+                        example: '2024-01-15T10:30:00Z'
+                        type: string
+                      outputUrl:
+                        description: URL to the generated cover audio file
+                        example: https://storage.example.com/covers/cover_123456789.mp3
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      inputFileName:
+                        description: Original filename of the input audio
+                        example: original_song.wav
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      status:
+                        description: Current status of the cover generation job
+                        example: SUCCEEDED
+                        type: string
+                        enum:
+                          - QUEUED
+                          - PENDING_WORKER
+                          - PROCESSING
+                          - ERRORED
+                          - SUCCEEDED
+                          - CANCELED
+                      inputUrl:
+                        description: URL to the input audio file
+                        example: https://storage.example.com/input/original_song.wav
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      ttsText:
+                        description: Text-to-speech content if using TTS
+                        example: Hello world, this is a test
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      stemOnly:
+                        description: Whether to process only the vocal stem
+                        example: false
+                        anyOf:
+                          - type: boolean
+                          - type: 'null'
+                      preStemmed:
+                        description: Whether the input audio is already stemmed
+                        example: false
+                        anyOf:
+                          - type: boolean
+                          - type: 'null'
+                      pitch:
+                        description: Pitch adjustment value for the voice
+                        example: 0
+                        anyOf:
+                          - type: number
+                          - type: 'null'
+                      queuePosition:
+                        description: Current position in the processing queue
+                        example: 3
+                        anyOf:
+                          - type: number
+                          - type: 'null'
+                    required:
+                      - id
+                      - createdAt
+                      - status
+                    additionalProperties: false
+                  - type: 'null'
         '400':
           description: Invalid input data
           content:
@@ -1742,6 +2088,7 @@ paths:
         - RVCv2 Covers
       security:
         - Authorization: []
+      parameters: []
       requestBody:
         required: true
         content:
@@ -1750,32 +2097,54 @@ paths:
               type: object
               properties:
                 rvcModelId:
+                  description: ID of the RVC voice model to use for cloning
+                  example: model_123456789
                   type: string
                 inputUrl:
+                  description: URL to the input audio file to be processed
+                  example: https://storage.example.com/input/song.wav
                   type: string
                 inputFileName:
+                  description: Original filename of the input audio
+                  example: my_song.wav
                   type: string
                 pitch:
-                  type: number
+                  description: Pitch adjustment value for the voice (in semitones)
+                  example: 0
                   default: 0
+                  type: number
                 preStemmed:
-                  type: boolean
+                  description: Whether the input audio is already separated into stems
+                  example: false
                   default: false
+                  type: boolean
                 stemOnly:
-                  type: boolean
+                  description: Whether to process only the vocal stem
+                  example: false
                   default: false
+                  type: boolean
                 instrumentalPitch:
-                  type: number
+                  description: Pitch adjustment for the instrumental track
+                  example: 0
                   default: 0
+                  type: number
                 deEcho:
-                  type: boolean
+                  description: Whether to remove echo from the audio
+                  example: false
                   default: false
+                  type: boolean
                 isolateMainVocals:
-                  type: boolean
+                  description: Whether to isolate only the main vocal track
+                  example: false
                   default: false
+                  type: boolean
                 consonantProtection:
+                  description: Consonant protection level (0-1)
+                  example: 0.5
                   type: number
                 volumeEnvelope:
+                  description: Volume envelope adjustment value
+                  example: 1
                   type: number
               required:
                 - rvcModelId
@@ -1789,16 +2158,28 @@ paths:
                 type: object
                 properties:
                   id:
+                    description: Unique identifier for the cover job
+                    example: cover_123456789
                     type: string
                   createdAt:
+                    description: Timestamp when the cover job was created
+                    example: '2024-01-15T10:30:00Z'
                     type: string
                   outputUrl:
-                    type: string
-                    nullable: true
+                    description: URL to the generated cover audio file
+                    example: https://storage.example.com/covers/cover_123456789.mp3
+                    anyOf:
+                      - type: string
+                      - type: 'null'
                   inputFileName:
-                    type: string
-                    nullable: true
+                    description: Original filename of the input audio
+                    example: original_song.wav
+                    anyOf:
+                      - type: string
+                      - type: 'null'
                   status:
+                    description: Current status of the cover generation job
+                    example: SUCCEEDED
                     type: string
                     enum:
                       - QUEUED
@@ -1808,27 +2189,46 @@ paths:
                       - SUCCEEDED
                       - CANCELED
                   inputUrl:
-                    type: string
-                    nullable: true
+                    description: URL to the input audio file
+                    example: https://storage.example.com/input/original_song.wav
+                    anyOf:
+                      - type: string
+                      - type: 'null'
                   ttsText:
-                    type: string
-                    nullable: true
+                    description: Text-to-speech content if using TTS
+                    example: Hello world, this is a test
+                    anyOf:
+                      - type: string
+                      - type: 'null'
                   stemOnly:
-                    type: boolean
-                    nullable: true
+                    description: Whether to process only the vocal stem
+                    example: false
+                    anyOf:
+                      - type: boolean
+                      - type: 'null'
                   preStemmed:
-                    type: boolean
-                    nullable: true
+                    description: Whether the input audio is already stemmed
+                    example: false
+                    anyOf:
+                      - type: boolean
+                      - type: 'null'
                   pitch:
-                    type: number
-                    nullable: true
+                    description: Pitch adjustment value for the voice
+                    example: 0
+                    anyOf:
+                      - type: number
+                      - type: 'null'
                   queuePosition:
-                    type: number
-                    nullable: true
+                    description: Current position in the processing queue
+                    example: 3
+                    anyOf:
+                      - type: number
+                      - type: 'null'
                 required:
                   - id
                   - createdAt
                   - status
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -1861,7 +2261,10 @@ paths:
             bearerToken: 'My Bearer Token',
           });
 
-          const cover = await client.covers.create({ inputUrl: 'inputUrl', rvcModelId: 'rvcModelId' });
+          const cover = await client.covers.create({
+            inputUrl: 'https://storage.example.com/input/song.wav',
+            rvcModelId: 'model_123456789',
+          });
 
           console.log(cover.id);
       x-readme:
@@ -1874,7 +2277,10 @@ paths:
                 bearerToken: 'My Bearer Token',
               });
 
-              const cover = await client.covers.create({ inputUrl: 'inputUrl', rvcModelId: 'rvcModelId' });
+              const cover = await client.covers.create({
+                inputUrl: 'https://storage.example.com/input/song.wav',
+                rvcModelId: 'model_123456789',
+              });
 
               console.log(cover.id);
       x-codeSamples:
@@ -1886,7 +2292,10 @@ paths:
               bearerToken: 'My Bearer Token',
             });
 
-            const cover = await client.covers.create({ inputUrl: 'inputUrl', rvcModelId: 'rvcModelId' });
+            const cover = await client.covers.create({
+              inputUrl: 'https://storage.example.com/input/song.wav',
+              rvcModelId: 'model_123456789',
+            });
 
             console.log(cover.id);
   /rvc-models/upload:
@@ -1900,6 +2309,7 @@ paths:
         - RVCv2 Models
       security:
         - Authorization: []
+      parameters: []
       requestBody:
         required: true
         content:
@@ -1908,10 +2318,16 @@ paths:
               type: object
               properties:
                 url:
+                  description: URL to the RVC model file
+                  example: https://storage.example.com/models/voice_model.pth
                   type: string
                 title:
+                  description: Name for the voice model
+                  example: John Doe Voice Model
                   type: string
                 description:
+                  description: Description of the voice model
+                  example: A voice model trained on John Doe's voice recordings
                   type: string
               required:
                 - url
@@ -1926,15 +2342,22 @@ paths:
                 type: object
                 properties:
                   id:
+                    description: Unique identifier for the RVC model
+                    example: model_123456789
                     type: string
                   title:
+                    description: Name of the RVC voice model
+                    example: John Doe Voice Model
                     type: string
                   createdAt:
+                    description: Timestamp when the model was created
+                    example: '2024-01-15T10:30:00Z'
                     type: string
                 required:
                   - id
                   - title
                   - createdAt
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -1960,51 +2383,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/error.INTERNAL_SERVER_ERROR'
       x-stainless-snippets:
-        typescript: >-
+        typescript: |-
           import Weights from '@weights-ai/sdk';
-
 
           const client = new Weights({
             bearerToken: 'My Bearer Token',
           });
 
-
-          const response = await client.rvcModels.upload({ description: 'description', title: 'title', url:
-          'url' });
-
+          const response = await client.rvcModels.upload({
+            description: "A voice model trained on John Doe's voice recordings",
+            title: 'John Doe Voice Model',
+            url: 'https://storage.example.com/models/voice_model.pth',
+          });
 
           console.log(response.id);
       x-readme:
         code-samples:
           - language: node
-            code: >-
+            code: |-
               import Weights from '@weights-ai/sdk';
-
 
               const client = new Weights({
                 bearerToken: 'My Bearer Token',
               });
 
-
-              const response = await client.rvcModels.upload({ description: 'description', title: 'title',
-              url: 'url' });
-
+              const response = await client.rvcModels.upload({
+                description: "A voice model trained on John Doe's voice recordings",
+                title: 'John Doe Voice Model',
+                url: 'https://storage.example.com/models/voice_model.pth',
+              });
 
               console.log(response.id);
       x-codeSamples:
         - lang: JavaScript
-          source: >-
+          source: |-
             import Weights from '@weights-ai/sdk';
-
 
             const client = new Weights({
               bearerToken: 'My Bearer Token',
             });
 
-
-            const response = await client.rvcModels.upload({ description: 'description', title: 'title', url:
-            'url' });
-
+            const response = await client.rvcModels.upload({
+              description: "A voice model trained on John Doe's voice recordings",
+              title: 'John Doe Voice Model',
+              url: 'https://storage.example.com/models/voice_model.pth',
+            });
 
             console.log(response.id);
   /rvc-models/training/create:
@@ -2018,6 +2441,7 @@ paths:
         - RVCv2 Models
       security:
         - Authorization: []
+      parameters: []
       requestBody:
         required: true
         content:
@@ -2026,32 +2450,48 @@ paths:
               type: object
               properties:
                 name:
+                  description: Name for the RVC voice model
+                  example: John Doe Voice Model
                   type: string
                   minLength: 1
                   maxLength: 100
                 description:
+                  description: Description of the voice model
+                  example: A voice model trained on John Doe's voice recordings
                   type: string
                 audioFiles:
+                  description: Array of training audio files (1-50 files required)
+                  example: []
+                  minItems: 1
+                  maxItems: 50
                   type: array
                   items:
                     type: object
                     properties:
                       url:
+                        description: URL to the training audio file
+                        example: https://storage.example.com/training/voice_sample1.wav
                         type: string
                         format: uri
                       isPreStemmed:
-                        type: boolean
+                        description: Whether the audio file is already separated into stems
+                        example: false
                         default: false
+                        type: boolean
                     required:
                       - url
-                  minItems: 1
-                  maxItems: 50
-                runKaraoke:
-                  type: boolean
+                isolateMainVocals:
+                  description: >-
+                    Whether to run the UVR-MDX-NET Karaoke stemming processing on the audio to isolate the
+                    main vocals
+                  example: false
                   default: false
-                runDeEchoDeReverb:
                   type: boolean
+                deEchoDeReverb:
+                  description: Whether to remove echo and reverb from the audio
+                  example: false
                   default: false
+                  type: boolean
               required:
                 - name
                 - audioFiles
@@ -2064,92 +2504,152 @@ paths:
                 type: object
                 properties:
                   id:
+                    description: Unique identifier for the RVC training job
+                    example: training_123456789
                     type: string
                   name:
+                    description: Name of the RVC voice model being trained
+                    example: John Doe Voice Model
                     type: string
                   description:
-                    type: string
-                    nullable: true
+                    description: Description of the voice model
+                    example: A voice model trained on John Doe's voice recordings
+                    anyOf:
+                      - type: string
+                      - type: 'null'
                   image:
-                    type: string
-                    nullable: true
+                    description: URL to the model preview image
+                    example: https://storage.example.com/model_preview.jpg
+                    anyOf:
+                      - type: string
+                      - type: 'null'
                   status:
-                    type: string
-                    nullable: true
-                    enum:
-                      - QUEUED
-                      - PENDING_WORKER
-                      - PROCESSING
-                      - ERRORED
-                      - SUCCEEDED
-                      - CANCELED
-                      - null
+                    description: Current status of the training job
+                    example: PROCESSING
+                    anyOf:
+                      - type: string
+                        enum:
+                          - QUEUED
+                          - PENDING_WORKER
+                          - PROCESSING
+                          - ERRORED
+                          - SUCCEEDED
+                          - CANCELED
+                      - type: 'null'
                   shortStatusText:
-                    type: string
-                    nullable: true
+                    description: Brief description of the current training status
+                    example: Training model with 15 audio files
+                    anyOf:
+                      - type: string
+                      - type: 'null'
                   createdAt:
+                    description: Timestamp when the training job was created
+                    example: '2024-01-15T10:30:00Z'
                     type: string
                   updatedAt:
+                    description: Timestamp when the training job was last updated
+                    example: '2024-01-15T10:35:00Z'
                     type: string
                   startTime:
-                    type: string
-                    nullable: true
+                    description: Timestamp when training started
+                    example: '2024-01-15T10:31:00Z'
+                    anyOf:
+                      - type: string
+                      - type: 'null'
                   endTime:
-                    type: string
-                    nullable: true
+                    description: Timestamp when training completed
+                    example: '2024-01-15T10:34:00Z'
+                    anyOf:
+                      - type: string
+                      - type: 'null'
                   attempt:
+                    description: Number of training attempts made
+                    example: 1
                     type: number
                   initialQueuePosition:
-                    type: number
-                    nullable: true
-                  runKaraoke:
+                    description: Initial position in the training queue
+                    example: 5
+                    anyOf:
+                      - type: number
+                      - type: 'null'
+                  isolateMainVocals:
+                    description: Whether main vocal isolation was enabled
+                    example: false
                     type: boolean
-                  runDeEchoDeReverb:
+                  deEchoDeReverb:
+                    description: Whether echo and reverb removal was enabled
+                    example: false
                     type: boolean
                   rvcModelId:
-                    type: string
-                    nullable: true
+                    description: ID of the associated RVC model
+                    example: clm72xn4s11ttcctcr0dl9yfy
+                    anyOf:
+                      - type: string
+                      - type: 'null'
                   rvcModel:
-                    type: object
-                    nullable: true
-                    properties:
-                      id:
-                        type: string
-                      title:
-                        type: string
-                    required:
-                      - id
-                      - title
+                    description: Associated RVC model information
+                    example: null
+                    anyOf:
+                      - type: object
+                        properties:
+                          id:
+                            description: Unique identifier for the RVC model
+                            example: clm72xn4s11ttcctcr0dl9yfy
+                            type: string
+                          title:
+                            description: Title of the RVC model
+                            example: John Doe Voice Model
+                            type: string
+                        required:
+                          - id
+                          - title
+                        additionalProperties: false
+                      - type: 'null'
                   audioFiles:
+                    description: Array of training audio files
+                    example: []
                     type: array
                     items:
                       type: object
                       properties:
                         id:
+                          description: Unique identifier for the audio file
+                          example: clm72xn4s11ttcctcr0dl9yfy
                           type: string
                         url:
+                          description: URL to the training audio file
+                          example: https://storage.example.com/training/voice_sample1.wav
                           type: string
                         isPreStemmed:
+                          description: Whether the audio file is pre-stemmed
+                          example: false
                           type: boolean
                         createdAt:
+                          description: Timestamp when the audio file was uploaded
+                          example: '2024-01-15T10:30:00Z'
                           type: string
                       required:
                         - id
                         - url
                         - isPreStemmed
                         - createdAt
+                      additionalProperties: false
                   queuePosition:
-                    type: number
-                    nullable: true
+                    description: Current position in the training queue
+                    example: 2
+                    anyOf:
+                      - type: number
+                      - type: 'null'
                 required:
                   - id
                   - name
                   - createdAt
                   - updatedAt
                   - attempt
-                  - runKaraoke
-                  - runDeEchoDeReverb
+                  - isolateMainVocals
+                  - deEchoDeReverb
                   - audioFiles
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -2183,8 +2683,8 @@ paths:
           });
 
           const training = await client.rvcModels.training.create({
-            audioFiles: [{ url: 'https://example.com' }],
-            name: 'x',
+            audioFiles: [{ url: 'https://storage.example.com/training/voice_sample1.wav' }],
+            name: 'John Doe Voice Model',
           });
 
           console.log(training.id);
@@ -2199,8 +2699,8 @@ paths:
               });
 
               const training = await client.rvcModels.training.create({
-                audioFiles: [{ url: 'https://example.com' }],
-                name: 'x',
+                audioFiles: [{ url: 'https://storage.example.com/training/voice_sample1.wav' }],
+                name: 'John Doe Voice Model',
               });
 
               console.log(training.id);
@@ -2214,8 +2714,8 @@ paths:
             });
 
             const training = await client.rvcModels.training.create({
-              audioFiles: [{ url: 'https://example.com' }],
-              name: 'x',
+              audioFiles: [{ url: 'https://storage.example.com/training/voice_sample1.wav' }],
+              name: 'John Doe Voice Model',
             });
 
             console.log(training.id);
@@ -2239,15 +2739,22 @@ paths:
         - in: query
           name: limit
           schema:
+            default: 25
+            description: Number of items to return per page
+            example: 25
             type: number
             minimum: 1
             maximum: 50
-            default: 25
         - in: query
           name: cursor
           schema:
-            type: string
-            nullable: true
+            anyOf:
+              - description: >-
+                  Cursor for pagination to get the next page of results - this is the last item's ID from the
+                  previous page
+                example: cmcz89fci00zr0dlt68klunpf
+                type: string
+              - type: 'null'
       responses:
         '200':
           description: Returns a paginated list of RVC models and training jobs for the authenticated user.
@@ -2266,22 +2773,24 @@ paths:
                         name:
                           type: string
                         description:
-                          type: string
-                          nullable: true
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         status:
-                          type: string
-                          nullable: true
-                          enum:
-                            - QUEUED
-                            - PENDING_WORKER
-                            - PROCESSING
-                            - ERRORED
-                            - SUCCEEDED
-                            - CANCELED
-                            - null
+                          anyOf:
+                            - type: string
+                              enum:
+                                - QUEUED
+                                - PENDING_WORKER
+                                - PROCESSING
+                                - ERRORED
+                                - SUCCEEDED
+                                - CANCELED
+                            - type: 'null'
                         shortStatusText:
-                          type: string
-                          nullable: true
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         createdAt:
                           type: string
                         updatedAt:
@@ -2292,73 +2801,89 @@ paths:
                             - uploaded
                             - training
                         title:
-                          type: string
-                          nullable: true
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         url:
-                          type: string
-                          nullable: true
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         startTime:
-                          type: string
-                          nullable: true
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         endTime:
-                          type: string
-                          nullable: true
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         version:
-                          type: number
-                          nullable: true
+                          anyOf:
+                            - type: number
+                            - type: 'null'
                         attempt:
-                          type: number
-                          nullable: true
+                          anyOf:
+                            - type: number
+                            - type: 'null'
                         runKaraoke:
-                          type: boolean
-                          nullable: true
+                          anyOf:
+                            - type: boolean
+                            - type: 'null'
                         runDeEchoDeReverb:
-                          type: boolean
-                          nullable: true
+                          anyOf:
+                            - type: boolean
+                            - type: 'null'
                         rvcModelId:
-                          type: string
-                          nullable: true
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         rvcModel:
-                          type: object
-                          nullable: true
-                          properties:
-                            id:
-                              type: string
-                            title:
-                              type: string
-                          required:
-                            - id
-                            - title
+                          anyOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: string
+                                title:
+                                  type: string
+                              required:
+                                - id
+                                - title
+                              additionalProperties: false
+                            - type: 'null'
                         audioFiles:
-                          type: array
-                          nullable: true
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                              url:
-                                type: string
-                              isPreStemmed:
-                                type: boolean
-                              createdAt:
-                                type: string
-                            required:
-                              - id
-                              - url
-                              - isPreStemmed
-                              - createdAt
+                          anyOf:
+                            - type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  url:
+                                    type: string
+                                  isPreStemmed:
+                                    type: boolean
+                                  createdAt:
+                                    type: string
+                                required:
+                                  - id
+                                  - url
+                                  - isPreStemmed
+                                  - createdAt
+                                additionalProperties: false
+                            - type: 'null'
                         queuePosition:
-                          type: number
-                          nullable: true
+                          anyOf:
+                            - type: number
+                            - type: 'null'
                       required:
                         - id
                         - name
                         - createdAt
                         - updatedAt
                         - type
+                      additionalProperties: false
                 required:
                   - items
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -2448,19 +2973,27 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                nullable: true
-                properties:
-                  id:
-                    type: string
-                  title:
-                    type: string
-                  createdAt:
-                    type: string
-                required:
-                  - id
-                  - title
-                  - createdAt
+                anyOf:
+                  - type: object
+                    properties:
+                      id:
+                        description: Unique identifier for the RVC model
+                        example: model_123456789
+                        type: string
+                      title:
+                        description: Name of the RVC voice model
+                        example: John Doe Voice Model
+                        type: string
+                      createdAt:
+                        description: Timestamp when the model was created
+                        example: '2024-01-15T10:30:00Z'
+                        type: string
+                    required:
+                      - id
+                      - title
+                      - createdAt
+                    additionalProperties: false
+                  - type: 'null'
         '400':
           description: Invalid input data
           content:
@@ -2550,96 +3083,157 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                nullable: true
-                properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  description:
-                    type: string
-                    nullable: true
-                  image:
-                    type: string
-                    nullable: true
-                  status:
-                    type: string
-                    nullable: true
-                    enum:
-                      - QUEUED
-                      - PENDING_WORKER
-                      - PROCESSING
-                      - ERRORED
-                      - SUCCEEDED
-                      - CANCELED
-                      - null
-                  shortStatusText:
-                    type: string
-                    nullable: true
-                  createdAt:
-                    type: string
-                  updatedAt:
-                    type: string
-                  startTime:
-                    type: string
-                    nullable: true
-                  endTime:
-                    type: string
-                    nullable: true
-                  attempt:
-                    type: number
-                  initialQueuePosition:
-                    type: number
-                    nullable: true
-                  runKaraoke:
-                    type: boolean
-                  runDeEchoDeReverb:
-                    type: boolean
-                  rvcModelId:
-                    type: string
-                    nullable: true
-                  rvcModel:
-                    type: object
-                    nullable: true
+                anyOf:
+                  - type: object
                     properties:
                       id:
+                        description: Unique identifier for the RVC training job
+                        example: training_123456789
                         type: string
-                      title:
+                      name:
+                        description: Name of the RVC voice model being trained
+                        example: John Doe Voice Model
                         type: string
+                      description:
+                        description: Description of the voice model
+                        example: A voice model trained on John Doe's voice recordings
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      image:
+                        description: URL to the model preview image
+                        example: https://storage.example.com/model_preview.jpg
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      status:
+                        description: Current status of the training job
+                        example: PROCESSING
+                        anyOf:
+                          - type: string
+                            enum:
+                              - QUEUED
+                              - PENDING_WORKER
+                              - PROCESSING
+                              - ERRORED
+                              - SUCCEEDED
+                              - CANCELED
+                          - type: 'null'
+                      shortStatusText:
+                        description: Brief description of the current training status
+                        example: Training model with 15 audio files
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      createdAt:
+                        description: Timestamp when the training job was created
+                        example: '2024-01-15T10:30:00Z'
+                        type: string
+                      updatedAt:
+                        description: Timestamp when the training job was last updated
+                        example: '2024-01-15T10:35:00Z'
+                        type: string
+                      startTime:
+                        description: Timestamp when training started
+                        example: '2024-01-15T10:31:00Z'
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      endTime:
+                        description: Timestamp when training completed
+                        example: '2024-01-15T10:34:00Z'
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      attempt:
+                        description: Number of training attempts made
+                        example: 1
+                        type: number
+                      initialQueuePosition:
+                        description: Initial position in the training queue
+                        example: 5
+                        anyOf:
+                          - type: number
+                          - type: 'null'
+                      isolateMainVocals:
+                        description: Whether main vocal isolation was enabled
+                        example: false
+                        type: boolean
+                      deEchoDeReverb:
+                        description: Whether echo and reverb removal was enabled
+                        example: false
+                        type: boolean
+                      rvcModelId:
+                        description: ID of the associated RVC model
+                        example: clm72xn4s11ttcctcr0dl9yfy
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      rvcModel:
+                        description: Associated RVC model information
+                        example: null
+                        anyOf:
+                          - type: object
+                            properties:
+                              id:
+                                description: Unique identifier for the RVC model
+                                example: clm72xn4s11ttcctcr0dl9yfy
+                                type: string
+                              title:
+                                description: Title of the RVC model
+                                example: John Doe Voice Model
+                                type: string
+                            required:
+                              - id
+                              - title
+                            additionalProperties: false
+                          - type: 'null'
+                      audioFiles:
+                        description: Array of training audio files
+                        example: []
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              description: Unique identifier for the audio file
+                              example: clm72xn4s11ttcctcr0dl9yfy
+                              type: string
+                            url:
+                              description: URL to the training audio file
+                              example: https://storage.example.com/training/voice_sample1.wav
+                              type: string
+                            isPreStemmed:
+                              description: Whether the audio file is pre-stemmed
+                              example: false
+                              type: boolean
+                            createdAt:
+                              description: Timestamp when the audio file was uploaded
+                              example: '2024-01-15T10:30:00Z'
+                              type: string
+                          required:
+                            - id
+                            - url
+                            - isPreStemmed
+                            - createdAt
+                          additionalProperties: false
+                      queuePosition:
+                        description: Current position in the training queue
+                        example: 2
+                        anyOf:
+                          - type: number
+                          - type: 'null'
                     required:
                       - id
-                      - title
-                  audioFiles:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                        url:
-                          type: string
-                        isPreStemmed:
-                          type: boolean
-                        createdAt:
-                          type: string
-                      required:
-                        - id
-                        - url
-                        - isPreStemmed
-                        - createdAt
-                  queuePosition:
-                    type: number
-                    nullable: true
-                required:
-                  - id
-                  - name
-                  - createdAt
-                  - updatedAt
-                  - attempt
-                  - runKaraoke
-                  - runDeEchoDeReverb
-                  - audioFiles
+                      - name
+                      - createdAt
+                      - updatedAt
+                      - attempt
+                      - isolateMainVocals
+                      - deEchoDeReverb
+                      - audioFiles
+                    additionalProperties: false
+                  - type: 'null'
         '400':
           description: Invalid input data
           content:
@@ -2730,34 +3324,38 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                nullable: true
-                properties:
-                  id:
-                    type: string
-                  status:
-                    type: string
-                    enum:
-                      - QUEUED
-                      - PENDING_WORKER
-                      - PROCESSING
-                      - ERRORED
-                      - SUCCEEDED
-                      - CANCELED
-                  shortStatusText:
-                    type: string
-                    nullable: true
-                  queuePosition:
-                    type: number
-                    nullable: true
-                  createdAt:
-                    type: string
-                required:
-                  - id
-                  - status
-                  - shortStatusText
-                  - queuePosition
-                  - createdAt
+                anyOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+                        enum:
+                          - QUEUED
+                          - PENDING_WORKER
+                          - PROCESSING
+                          - ERRORED
+                          - SUCCEEDED
+                          - CANCELED
+                      shortStatusText:
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      queuePosition:
+                        anyOf:
+                          - type: number
+                          - type: 'null'
+                      createdAt:
+                        type: string
+                    required:
+                      - id
+                      - status
+                      - shortStatusText
+                      - queuePosition
+                      - createdAt
+                    additionalProperties: false
+                  - type: 'null'
         '400':
           description: Invalid input data
           content:
@@ -2846,15 +3444,22 @@ paths:
         - in: query
           name: limit
           schema:
+            default: 25
+            description: Number of items to return per page
+            example: 25
             type: number
             minimum: 1
             maximum: 50
-            default: 25
         - in: query
           name: cursor
           schema:
-            type: string
-            nullable: true
+            anyOf:
+              - description: >-
+                  Cursor for pagination to get the next page of results - this is the last item's ID from the
+                  previous page
+                example: cmcz89fci00zr0dlt68klunpf
+                type: string
+              - type: 'null'
       responses:
         '200':
           description: Returns a paginated list of public RVC models matching the search criteria.
@@ -2869,17 +3474,25 @@ paths:
                       type: object
                       properties:
                         id:
+                          description: Unique identifier for the RVC model
+                          example: model_123456789
                           type: string
                         title:
+                          description: Name of the RVC voice model
+                          example: John Doe Voice Model
                           type: string
                         createdAt:
+                          description: Timestamp when the model was created
+                          example: '2024-01-15T10:30:00Z'
                           type: string
                       required:
                         - id
                         - title
                         - createdAt
+                      additionalProperties: false
                 required:
                   - models
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -2972,10 +3585,12 @@ paths:
                 type: object
                 properties:
                   downloadUrl:
-                    type: string
-                    nullable: true
+                    anyOf:
+                      - type: string
+                      - type: 'null'
                 required:
                   - downloadUrl
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -3054,6 +3669,7 @@ paths:
         - Songs
       security:
         - Authorization: []
+      parameters: []
       requestBody:
         required: true
         content:
@@ -3062,19 +3678,18 @@ paths:
               type: object
               properties:
                 lyrics:
+                  description: The lyrics for the song to be generated
+                  example: In the moonlight, we dance through the night
                   type: string
                   maxLength: 380
-                section:
+                prompt:
+                  description: The prompt for the style of the song
+                  example: blues, melancholic, raw, lonely bar, heartbreak
                   type: string
-                  enum:
-                    - verse
-                    - chorus
-                    - guitar-stabs
-                    - all
-                    - all_v2
-                  default: all
+                  maxLength: 590
               required:
                 - lyrics
+                - prompt
       responses:
         '200':
           description: Returns the ID of the created song generation job.
@@ -3087,6 +3702,7 @@ paths:
                     type: string
                 required:
                   - id
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -3119,7 +3735,10 @@ paths:
             bearerToken: 'My Bearer Token',
           });
 
-          const song = await client.songs.create({ lyrics: 'lyrics' });
+          const song = await client.songs.create({
+            lyrics: 'In the moonlight, we dance through the night',
+            prompt: 'blues, melancholic, raw, lonely bar, heartbreak',
+          });
 
           console.log(song.id);
       x-readme:
@@ -3132,7 +3751,10 @@ paths:
                 bearerToken: 'My Bearer Token',
               });
 
-              const song = await client.songs.create({ lyrics: 'lyrics' });
+              const song = await client.songs.create({
+                lyrics: 'In the moonlight, we dance through the night',
+                prompt: 'blues, melancholic, raw, lonely bar, heartbreak',
+              });
 
               console.log(song.id);
       x-codeSamples:
@@ -3144,7 +3766,10 @@ paths:
               bearerToken: 'My Bearer Token',
             });
 
-            const song = await client.songs.create({ lyrics: 'lyrics' });
+            const song = await client.songs.create({
+              lyrics: 'In the moonlight, we dance through the night',
+              prompt: 'blues, melancholic, raw, lonely bar, heartbreak',
+            });
 
             console.log(song.id);
   /songs/{id}:
@@ -3170,50 +3795,82 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                nullable: true
-                properties:
-                  id:
-                    type: string
-                  createdAt:
-                    type: string
-                  updatedAt:
-                    type: string
-                  startTime:
-                    type: string
-                    nullable: true
-                  endTime:
-                    type: string
-                    nullable: true
-                  status:
-                    type: string
-                    enum:
-                      - QUEUED
-                      - PENDING_WORKER
-                      - PROCESSING
-                      - ERRORED
-                      - SUCCEEDED
-                      - CANCELED
-                  attempt:
-                    type: integer
-                  outputUrl:
-                    type: string
-                    nullable: true
-                  lyrics:
-                    type: string
-                  queuePosition:
-                    type: number
-                    nullable: true
-                required:
-                  - id
-                  - createdAt
-                  - updatedAt
-                  - startTime
-                  - endTime
-                  - status
-                  - attempt
-                  - outputUrl
-                  - lyrics
+                anyOf:
+                  - type: object
+                    properties:
+                      id:
+                        description: Unique identifier for the song generation job
+                        example: cmcz89fci00zr0dlt68klunpf
+                        type: string
+                      createdAt:
+                        description: Timestamp when the job was created
+                        example: '2024-01-15T10:30:00Z'
+                        type: string
+                      updatedAt:
+                        description: Timestamp when the job was last updated
+                        example: '2024-01-15T10:35:00Z'
+                        type: string
+                      startTime:
+                        description: Timestamp when processing started
+                        example: '2024-01-15T10:31:00Z'
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      endTime:
+                        description: Timestamp when processing completed
+                        example: '2024-01-15T10:34:00Z'
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      status:
+                        description: Current status of the song generation job
+                        example: SUCCEEDED
+                        type: string
+                        enum:
+                          - QUEUED
+                          - PENDING_WORKER
+                          - PROCESSING
+                          - ERRORED
+                          - SUCCEEDED
+                          - CANCELED
+                      attempt:
+                        description: Number of processing attempts made
+                        example: 1
+                        type: integer
+                        minimum: -9007199254740991
+                        maximum: 9007199254740991
+                      outputUrl:
+                        description: URL to the generated song file
+                        example: https://tracks.weights.com/songs/song_123456789.mp3
+                        anyOf:
+                          - type: string
+                          - type: 'null'
+                      lyrics:
+                        description: The lyrics used to generate the song
+                        example: In the moonlight, we dance through the night
+                        type: string
+                      prompt:
+                        description: The prompt used to generate the song
+                        example: blues, melancholic, raw, lonely bar, heartbreak
+                        type: string
+                      queuePosition:
+                        description: Current position in the processing queue
+                        example: 5
+                        anyOf:
+                          - type: number
+                          - type: 'null'
+                    required:
+                      - id
+                      - createdAt
+                      - updatedAt
+                      - startTime
+                      - endTime
+                      - status
+                      - attempt
+                      - outputUrl
+                      - lyrics
+                    additionalProperties: false
+                  - type: 'null'
         '400':
           description: Invalid input data
           content:
@@ -3296,20 +3953,28 @@ paths:
         - in: query
           name: search
           schema:
-            type: string
-            nullable: true
+            anyOf:
+              - type: string
+              - type: 'null'
         - in: query
           name: limit
           schema:
+            default: 25
+            description: Number of items to return per page
+            example: 25
             type: number
             minimum: 1
             maximum: 50
-            default: 25
         - in: query
           name: cursor
           schema:
-            type: string
-            nullable: true
+            anyOf:
+              - description: >-
+                  Cursor for pagination to get the next page of results - this is the last item's ID from the
+                  previous page
+                example: cmcz89fci00zr0dlt68klunpf
+                type: string
+              - type: 'null'
       responses:
         '200':
           description: Returns a paginated list of all songs generated by the authenticated user.
@@ -3324,18 +3989,32 @@ paths:
                       type: object
                       properties:
                         id:
+                          description: Unique identifier for the song generation job
+                          example: cmcz89fci00zr0dlt68klunpf
                           type: string
                         createdAt:
+                          description: Timestamp when the job was created
+                          example: '2024-01-15T10:30:00Z'
                           type: string
                         updatedAt:
+                          description: Timestamp when the job was last updated
+                          example: '2024-01-15T10:35:00Z'
                           type: string
                         startTime:
-                          type: string
-                          nullable: true
+                          description: Timestamp when processing started
+                          example: '2024-01-15T10:31:00Z'
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         endTime:
-                          type: string
-                          nullable: true
+                          description: Timestamp when processing completed
+                          example: '2024-01-15T10:34:00Z'
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         status:
+                          description: Current status of the song generation job
+                          example: SUCCEEDED
                           type: string
                           enum:
                             - QUEUED
@@ -3345,15 +4024,31 @@ paths:
                             - SUCCEEDED
                             - CANCELED
                         attempt:
+                          description: Number of processing attempts made
+                          example: 1
                           type: integer
+                          minimum: -9007199254740991
+                          maximum: 9007199254740991
                         outputUrl:
-                          type: string
-                          nullable: true
+                          description: URL to the generated song file
+                          example: https://tracks.weights.com/songs/song_123456789.mp3
+                          anyOf:
+                            - type: string
+                            - type: 'null'
                         lyrics:
+                          description: The lyrics used to generate the song
+                          example: In the moonlight, we dance through the night
+                          type: string
+                        prompt:
+                          description: The prompt used to generate the song
+                          example: blues, melancholic, raw, lonely bar, heartbreak
                           type: string
                         queuePosition:
-                          type: number
-                          nullable: true
+                          description: Current position in the processing queue
+                          example: 5
+                          anyOf:
+                            - type: number
+                            - type: 'null'
                       required:
                         - id
                         - createdAt
@@ -3364,8 +4059,10 @@ paths:
                         - attempt
                         - outputUrl
                         - lyrics
+                      additionalProperties: false
                 required:
                   - songs
+                additionalProperties: false
         '400':
           description: Invalid input data
           content:
@@ -3457,21 +4154,27 @@ paths:
                       id:
                         type: string
                       email:
-                        type: string
-                        nullable: true
+                        anyOf:
+                          - type: string
+                          - type: 'null'
                       image:
-                        type: string
-                        nullable: true
+                        anyOf:
+                          - type: string
+                          - type: 'null'
                       role:
-                        type: string
-                        nullable: true
+                        anyOf:
+                          - type: string
+                          - type: 'null'
                       name:
-                        type: string
-                        nullable: true
+                        anyOf:
+                          - type: string
+                          - type: 'null'
                     required:
                       - id
+                    additionalProperties: false
                 required:
                   - user
+                additionalProperties: false
         '401':
           description: Authorization not provided
           content:
@@ -3527,54 +4230,27 @@ paths:
 
             console.log(user.user);
 components:
-  securitySchemes:
-    Authorization:
-      type: http
-      scheme: bearer
   schemas:
     error.BAD_REQUEST:
-      type: object
-      properties:
-        message:
-          type: string
-          description: The error message
-          example: Invalid input data
-        code:
-          type: string
-          description: The error code
-          example: BAD_REQUEST
-        issues:
-          type: array
-          items:
-            type: object
-            properties:
-              message:
-                type: string
-            required:
-              - message
-          description: An array of issues that were responsible for the error
-          example: []
-      required:
-        - message
-        - code
       title: Invalid input data error (400)
       description: The error information
       example:
         code: BAD_REQUEST
         message: Invalid input data
         issues: []
-    error.UNAUTHORIZED:
       type: object
       properties:
         message:
-          type: string
           description: The error message
-          example: Authorization not provided
-        code:
+          example: Invalid input data
           type: string
+        code:
           description: The error code
-          example: UNAUTHORIZED
+          example: BAD_REQUEST
+          type: string
         issues:
+          description: An array of issues that were responsible for the error
+          example: []
           type: array
           items:
             type: object
@@ -3583,29 +4259,31 @@ components:
                 type: string
             required:
               - message
-          description: An array of issues that were responsible for the error
-          example: []
+            additionalProperties: false
       required:
         - message
         - code
+      additionalProperties: false
+    error.UNAUTHORIZED:
       title: Authorization not provided error (401)
       description: The error information
       example:
         code: UNAUTHORIZED
         message: Authorization not provided
         issues: []
-    error.FORBIDDEN:
       type: object
       properties:
         message:
-          type: string
           description: The error message
-          example: Insufficient access
-        code:
+          example: Authorization not provided
           type: string
+        code:
           description: The error code
-          example: FORBIDDEN
+          example: UNAUTHORIZED
+          type: string
         issues:
+          description: An array of issues that were responsible for the error
+          example: []
           type: array
           items:
             type: object
@@ -3614,29 +4292,31 @@ components:
                 type: string
             required:
               - message
-          description: An array of issues that were responsible for the error
-          example: []
+            additionalProperties: false
       required:
         - message
         - code
+      additionalProperties: false
+    error.FORBIDDEN:
       title: Insufficient access error (403)
       description: The error information
       example:
         code: FORBIDDEN
         message: Insufficient access
         issues: []
-    error.INTERNAL_SERVER_ERROR:
       type: object
       properties:
         message:
-          type: string
           description: The error message
-          example: Internal server error
-        code:
+          example: Insufficient access
           type: string
+        code:
           description: The error code
-          example: INTERNAL_SERVER_ERROR
+          example: FORBIDDEN
+          type: string
         issues:
+          description: An array of issues that were responsible for the error
+          example: []
           type: array
           items:
             type: object
@@ -3645,29 +4325,31 @@ components:
                 type: string
             required:
               - message
-          description: An array of issues that were responsible for the error
-          example: []
+            additionalProperties: false
       required:
         - message
         - code
+      additionalProperties: false
+    error.INTERNAL_SERVER_ERROR:
       title: Internal server error error (500)
       description: The error information
       example:
         code: INTERNAL_SERVER_ERROR
         message: Internal server error
         issues: []
-    error.NOT_FOUND:
       type: object
       properties:
         message:
-          type: string
           description: The error message
-          example: Not found
-        code:
+          example: Internal server error
           type: string
+        code:
           description: The error code
-          example: NOT_FOUND
+          example: INTERNAL_SERVER_ERROR
+          type: string
         issues:
+          description: An array of issues that were responsible for the error
+          example: []
           type: array
           items:
             type: object
@@ -3676,14 +4358,47 @@ components:
                 type: string
             required:
               - message
-          description: An array of issues that were responsible for the error
-          example: []
+            additionalProperties: false
       required:
         - message
         - code
+      additionalProperties: false
+    error.NOT_FOUND:
       title: Not found error (404)
       description: The error information
       example:
         code: NOT_FOUND
         message: Not found
         issues: []
+      type: object
+      properties:
+        message:
+          description: The error message
+          example: Not found
+          type: string
+        code:
+          description: The error code
+          example: NOT_FOUND
+          type: string
+        issues:
+          description: An array of issues that were responsible for the error
+          example: []
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+            additionalProperties: false
+      required:
+        - message
+        - code
+      additionalProperties: false
+  securitySchemes:
+    Authorization:
+      type: http
+      scheme: bearer
+x-mcp:
+  enabled: true
