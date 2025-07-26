@@ -2,14 +2,13 @@ Learn how to create AI-generated songs from lyrics using the Weights API. This g
 
 ## Overview
 
-The Weights API provides powerful song generation capabilities that can turn your lyrics into full musical tracks. You provide the lyrics, and the AI creates the melody, instrumentation, and arrangement to bring your words to life.
+The Weights API provides powerful song generation capabilities that can turn your lyrics into full musical tracks. You provide the lyrics and a style prompt, and the AI creates the melody, instrumentation, and arrangement to bring your words to life.
 
 ## Prerequisites
 
 - A Weights API account with an API key
 - Lyrics in English (up to 380 characters)
-- Basic knowledge of HTTP requests and JSON
-- The Weights SDK installed (optional but recommended)
+- A style prompt describing the musical style (up to 590 characters)
 
 ## Step 1: Set Up Your Environment
 
@@ -27,9 +26,9 @@ const client = new Weights({
 });
 ```
 
-## Step 2: Prepare Your Lyrics
+## Step 2: Prepare Your Lyrics and Prompt
 
-Before generating a song, you need to prepare your lyrics. The API accepts English lyrics up to 380 characters.
+Before generating a song, you need to prepare your lyrics and a style prompt. The API accepts English lyrics up to 600 characters and style prompts up to 300 characters.
 
 ### Lyrics Requirements
 
@@ -38,22 +37,28 @@ Before generating a song, you need to prepare your lyrics. The API accepts Engli
 - **Content**: Can include verses, choruses, or complete songs
 - **Format**: Plain text (no special formatting needed)
 
-### Example Lyrics Preparation
+### Prompt Requirements
+
+- **Length**: Maximum 590 characters
+- **Content**: Describe the musical style, mood, genre, and instrumentation
+- **Examples**: "blues, melancholic, raw, lonely bar, heartbreak" or "upbeat pop, electronic, dance, energetic"
+
+### Example Preparation
 
 ```typescript
-// Example: Prepare different types of lyrics
+// Example: Prepare lyrics and prompts
 const verseLyrics =
   "In the moonlight, shadows dance, Whispering secrets of romance, Every step we take together, Makes this moment last forever";
 
-const chorusLyrics =
-  "Hold me close, don't let go, In your arms, I feel whole, Every heartbeat, every breath, You're my love, my life, my rest";
+const bluesPrompt = "blues, melancholic, raw, lonely bar, heartbreak, acoustic guitar, soulful vocals";
 
-const completeSong =
-  "Walking through the city lights, Feeling free on summer nights, Every moment, every day, You're the one who lights my way. Hold me close, don't let go, In your arms, I feel whole, Every heartbeat, every breath, You're my love, my life, my rest";
+const popPrompt = "upbeat pop, electronic, dance, energetic, synthesizers, driving beat";
+
+const rockPrompt = "rock, electric guitar, powerful drums, energetic, stadium anthem";
 
 console.log(`Verse length: ${verseLyrics.length} characters`);
-console.log(`Chorus length: ${chorusLyrics.length} characters`);
-console.log(`Complete song length: ${completeSong.length} characters`);
+console.log(`Blues prompt length: ${bluesPrompt.length} characters`);
+console.log(`Pop prompt length: ${popPrompt.length} characters`);
 ```
 
 ## Step 3: Create Your First Song
@@ -62,9 +67,8 @@ Start by creating a song generation job:
 
 ```typescript
 const songJob = await client.songs.create({
-  lyrics:
-    "In the moonlight, shadows dance, Whispering secrets of romance, Every step we take together, Makes this moment last forever",
-  section: "all",
+  lyrics: "In the moonlight, shadows dance, Whispering secrets of romance, Every step we take together, Makes this moment last forever",
+  prompt: "blues, melancholic, raw, lonely bar, heartbreak, acoustic guitar, soulful vocals",
 });
 
 console.log(`Song job created with ID: ${songJob.id}`);
@@ -73,15 +77,7 @@ console.log(`Song job created with ID: ${songJob.id}`);
 ### Request Parameters
 
 - **lyrics** (required): Your song lyrics in English (max 380 characters)
-- **section** (optional): Choose from `verse`, `chorus`, `guitar-stabs`, `all`, or `all_v2` (default: `all`)
-
-### Section Types
-
-- **verse**: Generate a verse section
-- **chorus**: Generate a chorus section
-- **guitar-stabs**: Generate guitar-focused instrumental sections
-- **all**: Generate a complete song with all sections
-- **all_v2**: Enhanced version with improved arrangement
+- **prompt** (required): Style description for the song (max 590 characters)
 
 ## Step 4: Monitor Song Generation
 
@@ -141,6 +137,7 @@ if (song.status === "SUCCEEDED") {
   console.log("Your song is ready!");
   console.log("Download URL:", song.outputUrl);
   console.log("Original Lyrics:", song.lyrics);
+  console.log("Style Prompt:", song.prompt);
   console.log(
     "Generation Time:",
     new Date(song.endTime) - new Date(song.startTime),
@@ -167,6 +164,7 @@ allSongs.songs.forEach((song) => {
   console.log(
     `- ${song.id}: ${song.lyrics.substring(0, 50)}... (${song.status})`
   );
+  console.log(`  Style: ${song.prompt}`);
   if (song.status === "SUCCEEDED" && song.outputUrl) {
     console.log(`  Download: ${song.outputUrl}`);
   }
@@ -175,34 +173,33 @@ allSongs.songs.forEach((song) => {
 
 ## Advanced Song Generation
 
-### Different Section Types
+### Different Musical Styles
 
-Experiment with various section types for different musical styles:
+Experiment with various style prompts for different musical genres:
 
 ```typescript
-// Generate a verse
-const verseSong = await client.songs.create({
+// Generate a blues song
+const bluesSong = await client.songs.create({
   lyrics: "Walking through the city lights, Feeling free on summer nights",
-  section: "verse",
+  prompt: "blues, melancholic, raw, lonely bar, heartbreak, acoustic guitar, soulful vocals",
 });
 
-// Generate a chorus
-const chorusSong = await client.songs.create({
+// Generate a pop song
+const popSong = await client.songs.create({
   lyrics: "Hold me close, don't let go, In your arms, I feel whole",
-  section: "chorus",
+  prompt: "upbeat pop, electronic, dance, energetic, synthesizers, driving beat, catchy melody",
 });
 
-// Generate guitar-focused instrumental
-const guitarSong = await client.songs.create({
-  lyrics:
-    "Electric dreams and neon lights, Rock and roll through endless nights",
-  section: "guitar-stabs",
+// Generate a rock song
+const rockSong = await client.songs.create({
+  lyrics: "Electric dreams and neon lights, Rock and roll through endless nights",
+  prompt: "rock, electric guitar, powerful drums, energetic, stadium anthem, distorted riffs",
 });
 
-// Generate complete song with enhanced arrangement
-const enhancedSong = await client.songs.create({
-  lyrics: "Complete song lyrics here...",
-  section: "all_v2",
+// Generate a jazz song
+const jazzSong = await client.songs.create({
+  lyrics: "Smooth as silk, the night unfolds, Stories that the moonlight told",
+  prompt: "jazz, smooth, sophisticated, piano, saxophone, lounge, intimate atmosphere",
 });
 ```
 
@@ -222,6 +219,7 @@ console.log(
 
 searchResults.songs.forEach((song) => {
   console.log(`- ${song.lyrics}`);
+  console.log(`  Style: ${song.prompt}`);
 });
 ```
 
@@ -235,13 +233,13 @@ searchResults.songs.forEach((song) => {
 - **Structure**: Consider verse-chorus structure for better results
 - **Language**: Keep language clear and accessible
 
-### Section Selection
+### Creating Effective Prompts
 
-- **Verse**: Good for storytelling and narrative content
-- **Chorus**: Best for memorable, repetitive phrases
-- **Guitar-stabs**: Ideal for rock and energetic content
-- **All**: Best for complete song experiences
-- **All_v2**: Enhanced version with better arrangement
+- **Be Specific**: Include genre, mood, instruments, and style
+- **Use Descriptive Words**: "melancholic", "energetic", "smooth", "raw"
+- **Mention Instruments**: "acoustic guitar", "synthesizers", "piano", "drums"
+- **Include Atmosphere**: "lonely bar", "stadium anthem", "lounge", "intimate"
+- **Combine Elements**: Mix genre with mood and instrumentation
 
 ### Error Handling
 
@@ -249,10 +247,11 @@ searchResults.songs.forEach((song) => {
 try {
   const songJob = await client.songs.create({
     lyrics: "Your lyrics here",
+    prompt: "Your style prompt here",
   });
 } catch (error) {
   if (error.code === "BAD_REQUEST") {
-    console.log("Invalid lyrics or parameters");
+    console.log("Invalid lyrics or prompt parameters");
   } else if (error.code === "UNAUTHORIZED") {
     console.log("Please check your API key");
   } else {
@@ -272,7 +271,7 @@ const client = new Weights({
   bearerToken: "your-api-key-here",
 });
 
-async function generateSong(lyrics, section = "all") {
+async function generateSong(lyrics, prompt) {
   try {
     // Validate lyrics length
     if (lyrics.length > 380) {
@@ -280,11 +279,17 @@ async function generateSong(lyrics, section = "all") {
       return;
     }
 
+    // Validate prompt length
+    if (prompt.length > 590) {
+      console.log("Prompt too long. Maximum 590 characters allowed.");
+      return;
+    }
+
     // Create the song generation job
     console.log("Creating song generation job...");
     const job = await client.songs.create({
       lyrics: lyrics,
-      section: section,
+      prompt: prompt,
     });
 
     console.log(`Job created with ID: ${job.id}`);
@@ -301,6 +306,7 @@ async function generateSong(lyrics, section = "all") {
         console.log("Song generated successfully!");
         console.log("Download URL:", status.outputUrl);
         console.log("Original Lyrics:", status.lyrics);
+        console.log("Style Prompt:", status.prompt);
         completed = true;
       } else if (status.status === "ERRORED") {
         console.log("Song generation failed");
@@ -315,12 +321,12 @@ async function generateSong(lyrics, section = "all") {
 // Generate different types of songs
 generateSong(
   "In the moonlight, shadows dance, Whispering secrets of romance, Every step we take together, Makes this moment last forever",
-  "all"
+  "blues, melancholic, raw, lonely bar, heartbreak, acoustic guitar, soulful vocals"
 );
 
 generateSong(
   "Hold me close, don't let go, In your arms, I feel whole, Every heartbeat, every breath, You're my love, my life, my rest",
-  "chorus"
+  "upbeat pop, electronic, dance, energetic, synthesizers, driving beat, catchy melody"
 );
 ```
 
@@ -363,12 +369,13 @@ generateSong(
 - **Rhythm**: Consider the natural rhythm of your words
 - **Repetition**: Include some repetition for memorable choruses
 
-### Musical Style
+### Prompt Crafting
 
-- **Section Choice**: Different sections produce different musical styles
-- **Length**: Longer lyrics create more complete musical experiences
-- **Tone**: Match lyrical tone to musical style
-- **Structure**: Consider traditional song structures
+- **Genre + Mood**: Combine genre with emotional tone
+- **Instrumentation**: Specify key instruments for the style
+- **Atmosphere**: Describe the setting or feeling
+- **Tempo**: Include tempo indicators like "slow", "upbeat", "driving"
+- **Examples**: "folk, acoustic, storytelling, campfire, intimate" or "electronic, ambient, atmospheric, dreamy, ethereal"
 
 ## Next Steps
 
